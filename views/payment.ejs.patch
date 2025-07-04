@@ -1,0 +1,2 @@
+=======
+        window.location.href = '/'; // Redirect to home page after payment success
