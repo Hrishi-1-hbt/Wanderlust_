@@ -447,13 +447,16 @@
                                         <i class="fa-regular fa-star star"></i>
                                     <% } %>
                                 <% } %>
-                            </p>
-                            <p class="flex-grow-1">
-                                <%= review.Comments.length > 150 ? review.Comments.substring(0, 150) + '... ' : review.Comments %>
-                                <% if (review.Comments.length > 150) { %>
-                                    <a class="text-primary" data-bs-toggle="modal" data-bs-target="#modal-<%= i %>" style="cursor: pointer;">Read more</a>
-                                <% } %>
-                            </p>
+                          <p class="flex-grow-1">
+    <%= review.Comments && review.Comments.length > 150 
+        ? review.Comments.substring(0, 150) + '... ' 
+        : review.Comments || '' 
+    %>
+    <% if (review.Comments && review.Comments.length > 150) { %>
+        <a class="text-primary" data-bs-toggle="modal" data-bs-target="#modal-<%= i %>" style="cursor: pointer;">Read more</a>
+    <% } %>
+</p>
+
                             <small class="text-muted" style="font-size: 10px;">
                                 <i class='bx bx-error-circle'></i> Verified by Wanderlust
                             </small>

@@ -102,10 +102,11 @@
   }
 </style>
 
+
 <div class="container booking">
   <h1>Book <%= list.title %></h1>
   <p><strong>Description:</strong> <%= list.description %></p>
-  <p><strong>Price:</strong> &#8377;<%= list.price %> per day</p>
+  <p><strong>Price:</strong> ₹<%= list.price %> per day</p>
   <p><strong>Location:</strong> <%= list.location %>, <%= list.country %></p>
 
   <% if (error) { %>
@@ -128,11 +129,3 @@
     <button type="submit">Confirm Booking</button>
   </form>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const today = new Date().toISOString().split('T')[0];
-    const bookingDateInput = document.getElementById('bookingDate');
-    bookingDateInput.setAttribute('min', today);
-  });
-</script>

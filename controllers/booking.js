@@ -8,16 +8,10 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_SECRET,
 });
 
-// Show booking form page
-
 module.exports.showBookingForm = async (req, res) => {
   try {
-    const listingId = req.params.id;
-    const list = await Listing.findById(listingId);
-    if (!list) {
-      return res.status(404).send("Listing not found.");
-    }
-    // Render the booking form view with the listing data
+    const list = await Listing.findById(req.params.id);
+    if (!list) return res.status(404).send("Listing not found.");
     res.render('booking', { list });
   } catch (error) {
     console.error(error);
@@ -25,38 +19,29 @@ module.exports.showBookingForm = async (req, res) => {
   }
 };
 
-
-// Helper function to calculate total price
-function calculatePrice(booking, pricePerDay) {
-  return booking.duration * pricePerDay;
+function calculatePrice(duration, pricePerDay) {
+  return duration * pricePerDay;
 }
 
-// Confirm booking and render payment page
 module.exports.confirmBooking = async (req, res) => {
   try {
     const { bookingDate, guests, duration } = req.body;
     const listingId = req.params.id;
 
-    // Validate inputs (simple example)
     if (!bookingDate || !guests || !duration) {
       const list = await Listing.findById(listingId);
       return res.render('booking', { list, error: 'All fields are required.', success: null });
     }
 
-    // Check if booking exists on date for listing
     const existingBooking = await Booking.findOne({ listingId, bookingDate });
     if (existingBooking) {
       const list = await Listing.findById(listingId);
-      return res.render('booking', { list, error: 'This listing is already booked for the selected date.', success: null });
+      return res.render('booking', { list, error: 'Already booked for this date.', success: null });
     }
 
-    // Find listing for price
     const listing = await Listing.findById(listingId);
-    if (!listing) {
-      return res.status(404).send('Listing not found');
-    }
+    if (!listing) return res.status(404).send('Listing not found');
 
-    // Create booking
     const booking = new Booking({
       listingId,
       bookingDate,
@@ -69,46 +54,12 @@ module.exports.confirmBooking = async (req, res) => {
 
     await booking.save();
 
-    const totalPrice = calculatePrice(booking, listing.price);
-
-    // Create Razorpay order for payment
-    const options = {
-      amount: totalPrice * 100, // paise
-      currency: 'INR',
-      receipt: `receipt_order_${booking._id}`,
-    };
-    const razorpayOrder = await razorpay.orders.create(options);
-
-    // Render payment page with booking and order
-    res.render('payment', {
-      booking,
-      totalPrice,
-      razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-      razorpayOrder,
-    });
-  } catch (error) {
-    console.error('Error confirming booking:', error);
-    res.status(500).send('Server error, please try again.');
-  }
-};
-
-// Render payment page for existing booking
-module.exports.renderPaymentPage = async (req, res) => {
-  try {
-    const bookingId = req.params.id;
-    const booking = await Booking.findById(bookingId).populate('userId');
-    if (!booking) {
-      return res.status(404).send('Booking not found');
-    }
-
-    const totalPrice = booking.price * booking.duration;
-
-    const options = {
+    const totalPrice = calculatePrice(duration, listing.price);
+    const razorpayOrder = await razorpay.orders.create({
       amount: totalPrice * 100,
       currency: 'INR',
       receipt: `receipt_order_${booking._id}`,
-    };
-    const razorpayOrder = await razorpay.orders.create(options);
+    });
 
     res.render('payment', {
       booking,
@@ -117,12 +68,35 @@ module.exports.renderPaymentPage = async (req, res) => {
       razorpayOrder,
     });
   } catch (error) {
-    console.error('Error rendering payment page:', error);
-    res.status(500).send('Something went wrong. Please try again later.');
+    console.error('Booking error:', error);
+    res.status(500).send('Server error');
   }
 };
 
-// Confirm payment webhook/callback
+module.exports.renderPaymentPage = async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id).populate('userId');
+    if (!booking) return res.status(404).send('Booking not found');
+
+    const totalPrice = booking.duration * booking.price;
+    const razorpayOrder = await razorpay.orders.create({
+      amount: totalPrice * 100,
+      currency: 'INR',
+      receipt: `receipt_order_${booking._id}`,
+    });
+
+    res.render('payment', {
+      booking,
+      totalPrice,
+      razorpayKeyId: process.env.RAZORPAY_KEY_ID,
+      razorpayOrder,
+    });
+  } catch (error) {
+    console.error('Payment page error:', error);
+    res.status(500).send('Something went wrong.');
+  }
+};
+
 module.exports.confirmPayment = async (req, res) => {
   const { bookingId } = req.params;
   const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = req.body;
@@ -137,9 +111,7 @@ module.exports.confirmPayment = async (req, res) => {
 
   try {
     const booking = await Booking.findById(bookingId);
-    if (!booking) {
-      return res.status(404).send('Booking not found');
-    }
+    if (!booking) return res.status(404).send('Booking not found');
 
     booking.isPaid = true;
     booking.paymentDetails = { razorpay_payment_id, razorpay_order_id };
