@@ -45,7 +45,7 @@ app.use(cors({
 
 app.use(cookieparser());
 
-const dbUrl= "mongodb://127.0.0.1:27017/phase2";
+const dbUrl=process.env.ATLASDB_URL;
 
 async function main() {
   await mongoose.connect(dbUrl);
