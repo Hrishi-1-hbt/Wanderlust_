@@ -1,35 +1,26 @@
 if (process.env.NODE_ENV !== "production") {
-    require('dotenv').config();
+    require("dotenv").config();
 }
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const User = require("./models/user.js");
 
-// Your MongoDB Atlas connection string
 const dbUrl = process.env.ATLASDB_URL;
 
 async function createSingleAdminUser() {
     try {
         await mongoose.connect(dbUrl, {
             useNewUrlParser: true,
-            useUnifiedTopology: true,
+            useUnifiedTopology: true
         });
 
-        // Ensure the User model has passport-local-mongoose plugin
-        if (!User.register) {
-            throw new Error("User model is missing passport-local-mongoose plugin.");
-        }
-
-        // Check if admin exists
         const existingAdmin = await User.findOne({ username: 'admin' });
-
         if (existingAdmin) {
             console.log("Deleting existing admin user...");
             await User.deleteOne({ username: 'admin' });
             console.log("Existing admin user deleted.");
         }
 
-        // Create and register new admin
         const adminUser = new User({
             username: 'admin',
             email: 'admin@example.com',
@@ -38,12 +29,12 @@ async function createSingleAdminUser() {
 
         await User.register(adminUser, 'Admin@123');
         console.log("✅ New admin user created successfully!");
-
     } catch (error) {
-        console.error("❌ Error creating admin user:", error.message);
+        console.error("❌ Error creating admin user:", error);
     } finally {
-        mongoose.connection.close();
+        await mongoose.connection.close();
     }
 }
 
 createSingleAdminUser();
+
