@@ -36,3 +36,32 @@ A full-stack web application inspired by Airbnb for booking and listing accommod
 
 ## 📂 Folder Structure (MVC)
 
+
+---
+
+## ⚙️ Getting Started (Local Setup)
+
+### Prerequisites
+- Node.js & npm installed
+- MongoDB (local or cloud)
+
+### Installation
+
+```bash
+git clone https://github.com/yourusername/wanderlust.git
+cd wanderlust
+npm install
+
+MONGO_URI=your_mongodb_uri
+SESSION_SECRET=your_session_secret
+OPENAI_API_KEY=your_openai_api_key
+GOOGLE_API_KEY=your_google_translate_key
+EMAIL_USER=your_email_address
+EMAIL_PASS=your_email_password
+RAZORPAY_KEY_ID=your_razorpay_key
+RAZORPAY_KEY_SECRET=your_razorpay_secret
+
+npm start
+
+
+
