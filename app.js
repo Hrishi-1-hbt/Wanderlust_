@@ -39,7 +39,7 @@ const cors = require('cors');
 const { contactUsController } = require("./controllers/contactUs.js");
 
 app.use(cors({
-  origin: 'http://your-frontend-domain.com',
+  origin: process.env.NODE_ENV === 'production' ? 'http://your-frontend-domain.com' : 'http://localhost:5173', // Allow React dev server
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
@@ -59,6 +59,7 @@ main().catch(err => console.log(err));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "/public")));
+app.use(express.static(path.join(__dirname, "client/dist"))); // Serve React build files
 app.use(methodOverride('_method'));
 app.use(express.urlencoded({ extended: true }));
 app.engine('ejs', ejsMate);
@@ -267,9 +268,9 @@ app.post("/feedback", isLoggedIn, asyncwrap(feedbackController.feedbackPost));
 app.post("/listing/:id/review", isLoggedIn, asyncwrap(reviewPost));
 app.delete("/listing/:id/review/:reviewId", isLoggedIn, isAuthor, asyncwrap(deleteReview));
 
-// Catch-all for invalid routes
-app.use("*", (req, res) => {
-  res.render("not_found.ejs");
+// Catch-all for invalid routes - serve React app for client-side routing
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client/dist/index.html"));
 });
 
 // Error handling middleware
