@@ -1,137 +1,73 @@
-<%- layout("/layouts/boilerplate") -%>
-<style>
-    .profile-container {
-        max-width: 800px;
-        margin: 3rem auto;
-        padding: 2rem;
-        background-color: #e7e7e7c5;
-        border-radius: 15px;
-        box-shadow: 0 5px 16px rgba(0, 0, 0, 0.353);
-    }
+// views/Profile.jsx
+import React from "react";
 
-    h1 {
-        font-size: 2rem;
-        text-align: center;
-        margin-bottom: 2rem;
-        color: #2c3e50;
-    }
+const Profile = ({ user, profilePic }) => {
+  return (
+    <div className="max-w-3xl mx-auto my-12 p-8 bg-gray-100 dark:bg-gray-800 rounded-2xl shadow-xl transition-colors duration-300">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
+        Welcome, {user.username}!
+      </h1>
 
-    .profile-card {
-        display: flex;
-        justify-content: space-between;
-        padding: 2rem;
-        background-color: #f7f7f7;
-        border-radius: 10px;
-        border: 2px solid rgba(128, 128, 128, 0.593);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-    .profile-picture {
-        border-radius: 50% !important;
-        width: 160px;
-        height: 160px;
-        object-fit: cover;
-        box-shadow: 4px 10px 8px rgba(0, 0, 0, 0.534);
-    }
-    .profile-picture img{
-        width: inherit;
-        height: inherit;
-        border: 5px solid rgb(124, 124, 124);
-        border-radius: 50% !important;
-    }
-
-    .profile-details {
-        flex: 1;
-        margin-left: 2.5rem;
-    }
-
-    .profile-details p {
-        font-size: 1.2rem;
-        margin: 0.5rem 0;
-        color: #878787;
-    }
-
-    .profile-details span {
-        color: #34495e;
-        font-weight: 600;
-    }
-
-    /* Profile Picture Upload Styling */
-    .upload-container {
-        margin-top: 1.5rem;
-        text-align: center;
-    }
-
-    .upload-container input[type="file"] {
-        display: none;
-    }
-
-    .upload-container label {
-        font-size: 1rem;
-        color: #ffffff;
-        background-color: #ff385c;
-        padding: 0.75rem 1.5rem;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    @media(max-width: 455px){
-        .profile-details{
-            margin-left: 0;
-        }
-        .profile-card{
-            padding: 2rem 1rem;
-        }
-    }
-
-    /* DARKMODE CSS */
-    .dark-mode{
-        .profile-container {
-            background-color: #494949;
-            box-shadow: 0 2px 5px rgba(119, 119, 119, 0.4);
-        }
-
-        h1 {
-            color: #ffffff;
-        }
-
-        .profile-card {
-            background-color: #3d3d3d;
-            box-shadow: 0 4px 11px rgba(255, 255, 255, 0.1);
-        }
-
-        .profile-picture img {
-            box-shadow: 0 4px 8px rgba(39, 39, 39, 0.15);
-        }
-
-        .profile-details p {
-            color: #cccccc;
-        }
-
-        .profile-details span {
-            color: #f5f5f5;
-        }
-    }
-</style>
-
-<div class="profile-container">
-    <h1>Welcome, <%= user.username %>!</h1>
-
-    <div class="d-flex flex-column align-items-center justify-content-center flex-md-row justify-content-md-around profile-card">
-        <div class="profile-picture">
-                <% if (currUser.profilePicture.purl) { %>
-                    <img src="<%=profilePic%>" alt="Profile Image">
-                <% } else { %>
-                    <img src="../profile.png" alt="Default Profile Image">
-                <% } %>
+      {/* Profile Card */}
+      <div className="flex flex-col md:flex-row items-center justify-between bg-white dark:bg-gray-900 rounded-xl border border-gray-300 dark:border-gray-700 shadow-lg p-6 md:p-10 space-y-6 md:space-y-0">
+        
+        {/* Profile Picture */}
+        <div className="flex flex-col items-center">
+          <div className="w-40 h-40 rounded-full overflow-hidden shadow-lg border-4 border-gray-400">
+            <img
+              src={profilePic ? profilePic : "../profile.png"}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </div>
 
-        <div class="profile-details">
-            <p><span>Username:</span> <%= user.username %></p>
-            <p><span>Email ID:</span> <%= user.email %></p>
-            <div class="">
-                <a class="btn btn-secondary btn-sm text-center" href="/profile/edit" class="btn">Edit Profile</a>  
-                <a class="btn btn-primary btn-sm text-center" href="/user/updatePass">Update Password</a> 
-            </div>
+        {/* Profile Details */}
+        <div className="flex flex-col items-start md:ml-8 text-gray-700 dark:text-gray-200">
+          <p className="text-lg mb-2">
+            <span className="font-semibold text-gray-900 dark:text-gray-100">
+              Username:
+            </span>{" "}
+            {user.username}
+          </p>
+          <p className="text-lg mb-6">
+            <span className="font-semibold text-gray-900 dark:text-gray-100">
+              Email ID:
+            </span>{" "}
+            {user.email}
+          </p>
+
+          {/* Buttons */}
+          <div className="flex gap-4">
+            <a
+              href="/profile/edit"
+              className="bg-gray-500 hover:bg-gray-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Edit Profile
+            </a>
+            <a
+              href="/user/updatePass"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Update Password
+            </a>
+          </div>
         </div>
+      </div>
+
+      {/* Upload Profile Picture */}
+      <div className="mt-8 text-center">
+        <label
+          htmlFor="profileUpload"
+          className="inline-block bg-pink-500 hover:bg-pink-600 text-white font-medium px-6 py-2.5 rounded-full cursor-pointer transition-colors"
+        >
+          Upload New Picture
+        </label>
+        <input type="file" id="profileUpload" className="hidden" />
+      </div>
     </div>
-</div>
+  );
+};
+
+export default Profile;

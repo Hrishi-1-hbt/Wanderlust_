@@ -1,184 +1,233 @@
-<% layout("/layouts/boilerplate") %>
-    <br>
-    <style>
-        .form_body{
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
-            background-color: #ededed;
-        }
-        .filter-tag{
-            display: inline-flex;
-            flex-direction: row;
-            flex-wrap: wrap;
-        }
-        .indi-filter{
-            padding: 0.1rem 0 0.1rem 0.6rem;
-            background-color: #d3d3d3;
-            margin-left: 0.4rem;
-            border-radius: 3rem;
-            margin-bottom: 0.5rem;
-        }
-        .display-badge{
-            margin-bottom: 1rem;
-        }
-    /* Form Container - Floating Effect */
-    .dark-mode{
-        .form_body {
-            border-radius: 10px;
-            padding: 30px;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
-            background-color: #2e2e2e;
-        }
-        h3 {
-            color: #fff;
-        }
-        .indi-filter{
-            background-color: #555555;
-        }
-        .form_body label{
-            color: #ffffff;
-            transition: color 0.3s ease;
-        }
+import React, { useState } from "react";
 
-        /* Input Fields Styling */
-        .edit_form input, textarea{
-            background-color: #1b1b1b;
-            color: #ffffff;
-            border: 1px solid #555555;
-            transition: box-shadow 0.3s ease;
-        }
-        .edit_form input, textarea:focus{
-            background-color: #1b1b1b;
-            color: #ffffff;
-        }
+export default function EditListing({ list, tags, onSubmit }) {
+  const [form, setForm] = useState({
+    title: list?.title || "",
+    description: list?.description || "",
+    price: list?.price || "",
+    location: list?.location || "",
+    country: list?.country || "",
+    tags: list?.tags || [],
+    newImages: [],
+    deleteImages: [],
+  });
 
-        .edit_form input[type="text"]::placeholder {
-            color: #aaaaaa;
-        }
+  const maxTags = 3;
+  const maxImages = 4;
 
-        .edit_form input[type="text"] {
-            border-radius: 5px;
-            padding: 12px;
-            width: 100%;
-            margin-top: 10px;
-        }
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-        /* Button Styling */
-        .edit_form button[type="submit"] {
-            border: 2px solid #999;
-            color: #999;
-            background: transparent;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .edit_form button[type="submit"]:hover {
-            color: #333;
-            border: none;
-            background: #999;
-        }
-        .form-text{
-            color: #aaaaaa7f !important;
-        }
-        .delete-label{
-            color: #1b1b1b !important;
-        }
-    
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > maxImages) {
+      alert(`You can upload a maximum of ${maxImages} images`);
+      return;
     }
-</style>
+    setForm({ ...form, newImages: files });
+  };
 
-        
-    <div class="container">
-        <div class="row">
-                <div class="col-12 col-md-10 col-lg-8 mx-auto form_body">
-                <h3 class="text-center">Edit Property details</h3>
-                <form method="POST" action="/listing/<%= list._id %>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
-                    <div class="mb-3 edit_form">
-                        <label for="title" class="form-label">Title</label>
-                        <input name="listing[title]" class="form-control" value="<%= list.title %>" required>
-                        <div class="valid-feedback">Looks good!</div>
-                        <div class="invalid-feedback">Please enter a valid title!</div>
-                    </div>
+  const handleTagToggle = (tag) => {
+    setForm((prev) => {
+      const hasTag = prev.tags.includes(tag);
+      if (!hasTag && prev.tags.length >= maxTags) return prev; // prevent over 3
+      return {
+        ...prev,
+        tags: hasTag ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+      };
+    });
+  };
 
-                    <div class="mb-3 edit_form">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea name="listing[description]" class="form-control" rows="5" required><%= list.description %></textarea>
-                        <div class="valid-feedback">Looks good!</div>
-                        <div class="invalid-feedback">Please enter a valid description!</div>
-                    </div>
+  const handleDeleteToggle = (filename) => {
+    setForm((prev) => {
+      const exists = prev.deleteImages.includes(filename);
+      return {
+        ...prev,
+        deleteImages: exists
+          ? prev.deleteImages.filter((img) => img !== filename)
+          : [...prev.deleteImages, filename],
+      };
+    });
+  };
 
-                    <div class="mb-3 edit_form">
-                        <div class="preview-container-edit">
-                        <% list.image.forEach ((image, i) => { %>
-                                <div class="preview-item">
-                                    <img src="<%= image.url %>" alt="listing_image" class="preview-image"/>
-                                    <div class="delete-checkbox">
-                                        <input class="form-check-input" type="checkbox" id="image-<%=i%>" name="deleteImages[]" value="<%=image.filename %>">
-                                        <label for="image-<%=i%>" class="form-check-label delete-label">Delete</label>
-                                    </div>
-                                </div>
-                        <% }); %>
-                    </div>
-                    <small class="form-text text-muted">Images preview that already uploaded.</small>
-                    </div>
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (onSubmit) onSubmit(form);
+  };
 
-                    <div class="mb-3 edit_form">
-                        <label for="images" class="form-label">Upload New Images</label>
-                        <input type="file" name="listing[image]" class="form-control" accept="image/*" id="fileInput" multiple>
-                        <small class="form-text text-muted">You can upload multiple <images id="fileError" class="">(Maximum 4)</images></small>
-                    </div>
-                    <div class="row">
+  return (
+    <div className="container mx-auto px-4 py-10">
+      <div className="max-w-3xl mx-auto bg-gray-100 dark:bg-gray-900 shadow-2xl rounded-2xl p-6">
+        <h3 className="text-center text-3xl font-semibold mb-6 dark:text-white">
+          Edit Property Details
+        </h3>
 
-                        <div class="mb-3 col-3 edit_form">
-                            <label for="price" class="form-label">Price (&#8377;)</label>
-                            <input name="listing[price]" type="number" class="form-control" value="<%= list.price %>" required>
-                            <div class="valid-feedback">Looks good!</div>
-                            <div class="invalid-feedback">Please enter a valid price!</div>
-                        </div>
+        <form
+          onSubmit={submitHandler}
+          className="space-y-6"
+          encType="multipart/form-data"
+        >
+          {/* Title */}
+          <div>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              Title
+            </label>
+            <input
+              name="title"
+              value={form.title}
+              onChange={handleChange}
+              required
+              className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring focus:ring-indigo-500"
+            />
+          </div>
 
-                        <div class="mb-3 col-5 edit_form">
-                            <label for="location" class="form-label">Location</label>
-                            <input name="listing[location]" class="form-control" value="<%= list.location %>" required>
-                            <div class="valid-feedback">Looks good!</div>
-                            <div class="invalid-feedback">Please enter a valid location!</div>
-                        </div>
-    
-                        <div class="mb-3 col-4 edit_form">
-                            <label for="country" class="form-label">Country</label>
-                            <input name="listing[country]" class="form-control" value="<%= list.country %>" required>
-                            <div class="valid-feedback">Looks good!</div>
-                            <div class="invalid-feedback">Please enter a valid country!</div>
-                        </div>
-                        <!-- Tags section -->
-                        <div class="mb-3 listing_form">
-                            <label for="tags" class="form-label"><b>Tags</b></label>
-                            <div class="display-badge">
-                                <% if (list.tags && list.tags.length>0) { %>
-                                    <% list.tags.forEach(tag => { %>
-                                        <span class="badge bg-primary"><%= tag %></span>
-                                    <% }); %>
-                                <% } else {%>
-                                    <p style="color: red;">No tags found.</p>
-                                <% } %>
-                            </div>
-                            <!-- <br> -->
-                            <div class="filter-tag">
-                            <% tags.forEach(tag => { %>
-                                <div class="indi-filter">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input tag-checkbox" type="checkbox" name="listing[tags]" id="tag<%= tag %>" value="<%= tag %>">
-                                        <label class="form-check-label" for="tag<%= tag %>"><%= tag %></label>
-                                    </div>
-                                </div>                                
-                            <% }) %>
-                            </div>
-                            <small class="form-text tag-alert">Maximum 3 tags are allowed!</small>
-                        </div>
+          {/* Description */}
+          <div>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              Description
+            </label>
+            <textarea
+              name="description"
+              rows="4"
+              value={form.description}
+              onChange={handleChange}
+              required
+              className="w-full p-2 rounded-md border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring focus:ring-indigo-500"
+            ></textarea>
+          </div>
 
-                    </div>
-
-                    <button type="submit" name="saveButton" class="btn btn-danger">Save</button>
-                </form>
+          {/* Existing Images */}
+          <div>
+            <p className="text-gray-700 dark:text-gray-300 mb-2">
+              Existing Images
+            </p>
+            <div className="flex flex-wrap gap-4">
+              {list?.image?.map((img, i) => (
+                <div
+                  key={i}
+                  className="flex flex-col items-center bg-gray-50 dark:bg-gray-800 p-2 rounded-lg"
+                >
+                  <img
+                    src={img.url}
+                    alt="listing"
+                    className="w-28 h-28 object-cover rounded-md"
+                  />
+                  <label className="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <input
+                      type="checkbox"
+                      checked={form.deleteImages.includes(img.filename)}
+                      onChange={() => handleDeleteToggle(img.filename)}
+                      className="text-red-600 focus:ring-red-500"
+                    />
+                    Delete
+                  </label>
+                </div>
+              ))}
             </div>
-        </div>
+            <p className="text-sm text-gray-500 mt-1">
+              Images preview that are already uploaded.
+            </p>
+          </div>
+
+          {/* Upload New Images */}
+          <div>
+            <label className="block text-gray-800 dark:text-gray-200 mb-1">
+              Upload New Images
+            </label>
+            <input
+              type="file"
+              multiple
+              onChange={handleFileChange}
+              accept="image/*"
+              className="w-full p-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              You can upload multiple images (Maximum {maxImages})
+            </p>
+          </div>
+
+          {/* Price / Location / Country */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-gray-800 dark:text-gray-200 mb-1">
+                Price (₹)
+              </label>
+              <input
+                name="price"
+                type="number"
+                value={form.price}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-800 dark:text-gray-200 mb-1">
+                Location
+              </label>
+              <input
+                name="location"
+                value={form.location}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-800 dark:text-gray-200 mb-1">
+                Country
+              </label>
+              <input
+                name="country"
+                value={form.country}
+                onChange={handleChange}
+                required
+                className="w-full p-2 border rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white focus:ring focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div>
+            <label className="block text-gray-800 dark:text-gray-200 mb-2">
+              Tags (max 3)
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {tags.map((tag) => (
+                <label key={tag} className="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    checked={form.tags.includes(tag)}
+                    onChange={() => handleTagToggle(tag)}
+                    className="form-checkbox text-indigo-600 rounded focus:ring-indigo-500"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-200">
+                    {tag}
+                  </span>
+                </label>
+              ))}
+            </div>
+            {form.tags.length >= maxTags && (
+              <p className="text-sm text-red-500 mt-1">
+                Maximum 3 tags are allowed!
+              </p>
+            )}
+          </div>
+
+          {/* Submit */}
+          <div className="flex justify-center pt-4">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md font-semibold transition"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
+  );
+}

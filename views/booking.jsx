@@ -1,131 +1,109 @@
-<% layout("/layouts/boilerplate") %>
+const React = require("react");
 
-<style>
-  .container.booking {
-    max-width: 500px;
-    margin: 40px auto;
-    padding: 30px 25px;
-    background: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
+function Booking({ list = {}, error, success }) {
+  const today = new Date().toISOString().split("T")[0];
 
-  .container.booking h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-    font-weight: 700;
-  }
+  return (
+    <html>
+      <head>
+        <title>Book {list.title || "Listing"}</title>
+        <link
+          href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+          rel="stylesheet"
+        />
+      </head>
 
-  .container.booking p {
-    font-size: 1rem;
-    margin-bottom: 12px;
-    color: #555;
-  }
+      <body className="bg-gray-50 font-sans">
+        <div className="max-w-md mx-auto mt-12 bg-white shadow-lg rounded-xl p-8">
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            Book {list.title}
+          </h1>
 
-  .container.booking p strong {
-    color: #222;
-  }
+          <div className="text-gray-700 space-y-2 mb-4">
+            <p>
+              <strong>Description:</strong> {list.description}
+            </p>
+            <p>
+              <strong>Price:</strong> ₹{list.price} per day
+            </p>
+            <p>
+              <strong>Location:</strong> {list.location}, {list.country}
+            </p>
+          </div>
 
-  .booking-form {
-    display: flex;
-    flex-direction: column;
-  }
+          {error && (
+            <p className="text-red-600 font-semibold text-center mb-3">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="text-green-600 font-semibold text-center mb-3">
+              {success}
+            </p>
+          )}
 
-  .booking-form label {
-    margin: 12px 0 6px;
-    font-weight: 600;
-    color: #444;
-  }
+          <form
+            className="flex flex-col"
+            action={`/bookings/my-bookings/${list._id}`}
+            method="POST"
+          >
+            <label
+              htmlFor="bookingDate"
+              className="font-medium text-gray-700 mt-2 mb-1"
+            >
+              Select Date:
+            </label>
+            <input
+              type="date"
+              id="bookingDate"
+              name="bookingDate"
+              required
+              min={today}
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
 
-  .booking-form input[type="date"],
-  .booking-form input[type="number"] {
-    padding: 10px 12px;
-    font-size: 1rem;
-    border: 1.5px solid #ccc;
-    border-radius: 6px;
-    transition: border-color 0.3s ease;
-  }
+            <label
+              htmlFor="guests"
+              className="font-medium text-gray-700 mt-4 mb-1"
+            >
+              Number of Rooms:
+            </label>
+            <input
+              type="number"
+              id="guests"
+              name="guests"
+              min="1"
+              max="10"
+              required
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
 
-  .booking-form input[type="date"]:focus,
-  .booking-form input[type="number"]:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 6px rgba(0,123,255,0.3);
-  }
+            <label
+              htmlFor="duration"
+              className="font-medium text-gray-700 mt-4 mb-1"
+            >
+              Duration (in days):
+            </label>
+            <input
+              type="number"
+              id="duration"
+              name="duration"
+              min="1"
+              required
+              className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400 outline-none"
+            />
 
-  .booking-form button {
-    margin-top: 25px;
-    padding: 12px 0;
-    background-color: #007bff;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
+            <button
+              type="submit"
+              className="mt-6 bg-blue-600 text-white py-2 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Confirm Booking
+            </button>
+          </form>
+        </div>
+      </body>
+    </html>
+  );
+}
 
-  .booking-form button:hover {
-    background-color: #0056b3;
-  }
-
-  p[style*="color: red;"] {
-    margin-top: 15px;
-    font-weight: 700;
-    font-size: 0.95rem;
-  }
-
-  p[style*="color: green;"] {
-    margin-top: 15px;
-    font-weight: 700;
-    font-size: 0.95rem;
-  }
-
-  /* Responsive for smaller screens */
-  @media (max-width: 600px) {
-    .container.booking {
-      padding: 20px 15px;
-      margin: 20px;
-    }
-
-    .booking-form input[type="date"],
-    .booking-form input[type="number"] {
-      font-size: 0.9rem;
-    }
-
-    .booking-form button {
-      font-size: 1rem;
-    }
-  }
-</style>
-
-
-<div class="container booking">
-  <h1>Book <%= list.title %></h1>
-  <p><strong>Description:</strong> <%= list.description %></p>
-  <p><strong>Price:</strong> ₹<%= list.price %> per day</p>
-  <p><strong>Location:</strong> <%= list.location %>, <%= list.country %></p>
-
-  <% if (error) { %>
-    <p style="color: red;"><%= error %></p>
-  <% } %>
-  <% if (success) { %>
-    <p style="color: green;"><%= success %></p>
-  <% } %>
-
-  <form class="booking-form" action="/bookings/my-bookings/<%= list._id %>" method="POST">
-    <label for="bookingDate">Select Date:</label>
-    <input type="date" id="bookingDate" name="bookingDate" required min="<%= new Date().toISOString().split('T')[0] %>">
-
-    <label for="guests">Number of Rooms:</label>
-    <input type="number" id="guests" name="guests" min="1" max="10" required>
-
-    <label for="duration">Duration (in days):</label>
-    <input type="number" id="duration" name="duration" min="1" required>
-
-    <button type="submit">Confirm Booking</button>
-  </form>
-</div>
+module.exports = Booking;

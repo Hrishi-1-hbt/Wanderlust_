@@ -1,181 +1,181 @@
-<% layout("/layouts/boilerplate") %>
-<br><br>
-<style>
-.signup-containers {
-    display: flex;
-    margin-top: 2rem;
-    margin-left: 2rem;
-}
-.sign-upimg {
-    width: 37rem;
-    height: 33rem;
-    transform: translateX(6rem);
-    filter: blur(1px);
-}
-.form_body {
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    padding: 30px;
-    box-shadow: 0 7px 15px rgba(113, 113, 113, 0.626);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-.navigatee {
-    color: #797979;
-}
-.navigatee a {
-    color: #ff385c;
-}
-.dark-mode {
-    .form_body {
-        background-color: #2e2e2e;
-        box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
+import React, { useState } from "react";
+
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    password: "",
+    cnfPassword: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!formData.username.trim()) newErrors.username = "Username is required";
+
+    if (!formData.email.includes("@")) newErrors.email = "Invalid email";
+
+    const passwordPattern =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+
+    if (!passwordPattern.test(formData.password))
+      newErrors.password =
+        "Password must be at least 8 characters and include a letter, number, and symbol.";
+
+    if (formData.password !== formData.cnfPassword)
+      newErrors.cnfPassword = "Passwords do not match.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    try {
+      const res = await fetch("/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        alert("Signup successful!");
+        window.location.href = "/login";
+      } else {
+        alert("Signup failed.");
+      }
+    } catch (err) {
+      console.error(err);
     }
-    .form-label {
-        color: #ffffff;
-    }
-    .signup_form input[type="text"], 
-    .signup_form input[type="password"],
-    .signup_form input[type="email"] {
-        background-color: #373737;
-        color: #ffffff;
-        border: 1px solid #555555;
-    }
-    .signup_form input::placeholder {
-        color: #aaaaaa;
-    }
-}
-.signup_form {
-    position: relative;
-}
-.signup_form .toggle-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    cursor: pointer;
-    z-index: 2;
-}
-.signup_form .form-control.is-invalid ~ .toggle-icon,
-.signup_form .form-control.is-valid ~ .toggle-icon {
-    top: 50%;
-}
-</style>
+  };
 
-<div class="row">
-  <div class="signup-containers">
-     <div>
-        <img src="/background.png" class="sign-upimg" alt="image">
-    </div>
-    <div class="col-11 col-md-8 col-lg-4 mx-auto form_body">
-        <form method="POST" action="/signup" class="needs-validation" id="signupForm" novalidate>
-            <div class="mb-3 signup_form">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" name="username" placeholder="Username" class="form-control" required>
-                <div class="valid-feedback">Looks great!</div>
-                <div class="invalid-feedback">Please enter a valid username</div>
-            </div>
+  return (
+    <div className="flex flex-col md:flex-row items-center justify-center min-h-screen bg-gray-100 p-8">
+      <img
+        src="/background.png"
+        alt="signup background"
+        className="hidden md:block w-[37rem] h-[33rem] blur-sm mr-10"
+      />
 
-            <div class="mb-3 signup_form">
-                <label for="email" class="form-label">Email Id</label>
-                <input type="email" name="email" placeholder="Email" class="form-control" required>
-                <div class="valid-feedback">Looks great!</div>
-                <div class="invalid-feedback">Please enter a valid email</div>
-            </div>
+      <div className="bg-white dark:bg-neutral-900 shadow-xl rounded-lg p-8 w-full max-w-md">
+        <h2 className="text-2xl font-semibold text-center mb-6 text-rose-600">
+          Create Account
+        </h2>
 
-            <div class="mb-3 signup_form">
-                <label for="password" class="form-label">Password</label>
-                <div class="password-box">
-                    <input type="password" name="password" placeholder="Password" class="form-control" id="password" required
-                    pattern="(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}">
-                    <i id="togglePassword" class="toggle-icon passkey passwordToggler fa fa-eye"></i>
-                    <div class="valid-feedback">Looks great!</div>
-                    <div class="invalid-feedback">
-                        Password must be at least 8 characters, include a letter, number, and special character.
-                    </div>
-                </div>
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Username */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-200">
+              Username
+            </label>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              className="mt-2 w-full p-2 border rounded-md focus:ring-2 focus:ring-rose-400 dark:bg-neutral-800 dark:text-white"
+            />
+            {errors.username && (
+              <p className="text-red-500 text-sm mt-1">{errors.username}</p>
+            )}
+          </div>
 
-            <div class="mb-3 signup_form">
-                <label for="cnfPassword" class="form-label">Confirm Password</label>
-                <div class="password-box">
-                    <input type="password" name="cnfPassword" placeholder="Confirm Password" class="form-control" id="cnfPassword" required>
-                    <i id="toggleConfirmPassword" class="toggle-icon cnf-passkey passwordToggler fa fa-eye"></i>
-                    <div class="valid-feedback">Looks great!</div>
-                    <div class="invalid-feedback">Passwords should match.</div>
-                </div>
-            </div>
+          {/* Email */}
+          <div>
+            <label className="block text-gray-700 dark:text-gray-200">
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="mt-2 w-full p-2 border rounded-md focus:ring-2 focus:ring-rose-400 dark:bg-neutral-800 dark:text-white"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
+          </div>
 
-            <br>
-            <div class="d-grid gap-2">
-                <button class="btn btn-danger" name="saveButton" type="submit">Sign up</button>
-                <a href="/listing" class="btn btn-secondary" type="button">Go back</a>
-            </div>
+          {/* Password */}
+          <div className="relative">
+            <label className="block text-gray-700 dark:text-gray-200">
+              Password
+            </label>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="mt-2 w-full p-2 border rounded-md focus:ring-2 focus:ring-rose-400 dark:bg-neutral-800 dark:text-white"
+            />
+            <i
+              className={`fa ${showPassword ? "fa-eye-slash" : "fa-eye"} absolute right-3 top-10 text-gray-500 cursor-pointer`}
+              onClick={() => setShowPassword(!showPassword)}
+            ></i>
+            {errors.password && (
+              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+            )}
+          </div>
 
-            <div class="mt-2 text-center navigatee">
-                Already have an account? <a href="/login">Login</a>
-            </div>
+          {/* Confirm Password */}
+          <div className="relative">
+            <label className="block text-gray-700 dark:text-gray-200">
+              Confirm Password
+            </label>
+            <input
+              type={showConfirm ? "text" : "password"}
+              name="cnfPassword"
+              placeholder="Confirm Password"
+              value={formData.cnfPassword}
+              onChange={handleChange}
+              className="mt-2 w-full p-2 border rounded-md focus:ring-2 focus:ring-rose-400 dark:bg-neutral-800 dark:text-white"
+            />
+            <i
+              className={`fa ${showConfirm ? "fa-eye-slash" : "fa-eye"} absolute right-3 top-10 text-gray-500 cursor-pointer`}
+              onClick={() => setShowConfirm(!showConfirm)}
+            ></i>
+            {errors.cnfPassword && (
+              <p className="text-red-500 text-sm mt-1">{errors.cnfPassword}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-rose-600 text-white py-2 rounded-md hover:bg-rose-700 transition"
+          >
+            Sign Up
+          </button>
+
+          <a
+            href="/listing"
+            className="block text-center border border-gray-300 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-neutral-800 transition"
+          >
+            Go Back
+          </a>
+
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-2">
+            Already have an account?{" "}
+            <a href="/login" className="text-rose-500 hover:underline">
+              Login
+            </a>
+          </p>
         </form>
-    </div>        
-</div>
-</div>
+      </div>
+    </div>
+  );
+};
 
-<script>
-const signupForm = document.getElementById('signupForm');
-const password = document.getElementById('password');
-const cnfPassword = document.getElementById('cnfPassword');
-
-function validatePasswordMatch() {
-    const pwdVal = password.value.trim();
-    const cnfPwdVal = cnfPassword.value.trim();
-
-    if (pwdVal && cnfPwdVal) {
-        if (pwdVal === cnfPwdVal) {
-            cnfPassword.setCustomValidity('');
-            cnfPassword.classList.add('is-valid');
-            cnfPassword.classList.remove('is-invalid');
-        } else {
-            cnfPassword.setCustomValidity("Passwords don't match");
-            cnfPassword.classList.add('is-invalid');
-            cnfPassword.classList.remove('is-valid');
-        }
-    } else {
-        cnfPassword.setCustomValidity('');
-        cnfPassword.classList.remove('is-invalid', 'is-valid');
-    }
-}
-
-password.addEventListener('input', () => {
-    if (password.checkValidity()) {
-        password.classList.add('is-valid');
-        password.classList.remove('is-invalid');
-    } else {
-        password.classList.add('is-invalid');
-        password.classList.remove('is-valid');
-    }
-    validatePasswordMatch();
-});
-
-cnfPassword.addEventListener('input', validatePasswordMatch);
-
-signupForm.addEventListener('submit', function (event) {
-    console.log('Form submission triggered');
-    validatePasswordMatch();
-    if (!signupForm.checkValidity()) {
-        console.log('Form validation failed');
-        event.preventDefault();
-        event.stopPropagation();
-    }
-    signupForm.classList.add('was-validated');
-});
-
-// Password toggle functionality
-document.querySelectorAll('.passwordToggler').forEach(toggler => {
-    toggler.addEventListener('click', function () {
-        const input = this.previousElementSibling;
-        const isPassword = input.type === 'password';
-        input.type = isPassword ? 'text' : 'password';
-        this.classList.toggle('fa-eye', isPassword);
-        this.classList.toggle('fa-eye-slash', !isPassword);
-    });
-});
-</script>
+export default Signup;

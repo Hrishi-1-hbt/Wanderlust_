@@ -1,140 +1,155 @@
-<style>
-    .dark-mode {
-        .feedback-container {
-            background-color: #2e2e2e;
-            box-shadow: 5px 10px 15px rgba(0, 0, 0, 0.712);
-        }
+import React, { useState, useEffect } from "react";
 
-        #review-form input,
-        #review-form textarea {
-            background-color: #787878 !important;
-            border: 2px solid #c1bfbf !important;
-            color: white !important;
-        }
+const Footer = () => {
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [showFeedback, setShowFeedback] = useState(false);
 
-        #review-form input:focus,
-        #review-form textarea:focus {
-            border: 2px solid #cdcdcd !important;
-        }
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
 
-        #review-form input::placeholder,
-        #review-form textarea::placeholder {
-            color: #dadada !important;
-        }
-    }
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert("Feedback submitted successfully!");
+    setShowFeedback(false);
+  };
 
-    #footer {
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        padding: 0;
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-    }
+  return (
+    <footer
+      id="footer"
+      className="notranslate w-full bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100 py-10 px-6 relative"
+    >
+      {/* --- Footer Container --- */}
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
 
-    #contact-us {
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        margin: 20px 0;
-        color: #030303 !important;
-    }
+        {/* Left Section */}
+        <div>
+          <h3 className="text-3xl font-bold text-pink-600">Wanderlust</h3>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            Where adventure meets comfort.
+          </p>
 
-    .contact-icon {
-        color: #000 !important;
-        font-size: 2rem;
-        margin-right: 10px;
-        transition: color 0.3s ease;
-    }
-</style>
-
-<footer class="container notranslate" id="footer">
-    <div class="footer-left">
-        <div class="brand">
-            <div class="wrapper six">
-                <div>
-                    <h3 class="flicker ">Wanderlust</h3>
-                </div>
+          <div className="mt-5 bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md">
+            <div className="flex items-center mb-3">
+              <i className="fas fa-envelope text-2xl text-black dark:text-gray-200 mr-3"></i>
+              <p>
+                Need assistance?<br />
+                <a
+                  href="mailto:supportwanderlust@gmail.com"
+                  className="text-pink-500 hover:underline"
+                >
+                  supportwanderlust@gmail.com
+                </a>
+              </p>
             </div>
-            <p>Where adventure meets comfort.</p>
-        </div>
-
-        <div class="contact-info" id="contact-us">
-            <div class="email" style="display: flex; align-items: center;">
-                <i class="fas fa-envelope contact-icon"></i>
-                <p>
-                    Need assistance with your booking or any inquiries?<br>
-                    <a href="mailto:supportwanderlust@gmail.com" class="mail">supportwanderlust@gmail.com</a>
-                </p>
+            <div className="flex items-center">
+              <i className="fas fa-phone text-2xl text-black dark:text-gray-200 mr-3"></i>
+              <p>
+                Available 24/7<br />
+                <a href="tel:+919876543210" className="text-pink-500 hover:underline">
+                  +91-0123456789
+                </a>
+              </p>
             </div>
-            <div class="phone" style="display: flex; align-items: center;">
-                <i class="fas fa-phone contact-icon"></i>
-                <p>
-                    Available 24/7<br>
-                    <a href="tel:+919876543210" class="mobile">+91-0123456789</a>
-                </p>
-            </div>
+          </div>
         </div>
-    </div>
 
-    <div class="footer-middle">
-        <div class="company-links">
-            <h3>Company</h3>
-            <ul>
-                <li><a href="/about">About Us</a></li>
-                <li><a href="/privacy">Privacy Policy</a></li>
-                <li><a href="/terms">Terms & Conditions</a></li>
-                
-            </ul>
+        {/* Middle Section */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+            Company
+          </h3>
+          <ul className="space-y-2">
+            <li><a href="/about" className="hover:text-pink-500">About Us</a></li>
+            <li><a href="/privacy" className="hover:text-pink-500">Privacy Policy</a></li>
+            <li><a href="/terms" className="hover:text-pink-500">Terms & Conditions</a></li>
+          </ul>
         </div>
-    </div>
 
-    <div class="footer-right">
-        <h3>Connect with us</h3>
-        <div class="social-media">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-facebook"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
+        {/* Right Section */}
+        <div>
+          <h3 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-100">
+            Connect with us
+          </h3>
+          <div className="flex space-x-4 mb-4 text-2xl">
+            <a href="#" className="hover:text-pink-500"><i className="fab fa-instagram"></i></a>
+            <a href="#" className="hover:text-pink-500"><i className="fab fa-facebook"></i></a>
+            <a href="#" className="hover:text-pink-500"><i className="fab fa-twitter"></i></a>
+          </div>
+
+          <button
+            onClick={() => setShowFeedback(true)}
+            className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg"
+          >
+            Give your Feedback
+          </button>
         </div>
-        <div class="feedback">
-            <button id="feedback">Give your Feedback</button>
-        </div>
-    </div>
+      </div>
 
-    <div class="copyright">
-        <p>© <span id="year"></span> WANDERLUST Private Limited. All rights reserved.</p>
-    </div>
+      {/* Copyright */}
+      <div className="text-center mt-8 text-gray-500 dark:text-gray-400">
+        © {year} WANDERLUST Private Limited. All rights reserved.
+      </div>
 
-    <div class="feedback-popup">
-        <div class="feedback-container">
-            <h2 data-aos="zoom-out-down" data-aos-duration="1200" data-aos-delay="200">Share Your Wanderlust Experience!</h2>
-            <form method="POST" action="/feedback" id="review-form" novalidate class="needs-validation">
-                <div class="star-rating" id="rating" aria-label="Rating" role="radiogroup" data-aos="zoom-out-down">
-                    <input type="radio" id="star5" name="feedback[rating]" value="5" />
-                    <label for="star5" title="5 stars">★</label>
-                    <input type="radio" id="star4" name="feedback[rating]" value="4" />
-                    <label for="star4" title="4 stars">★</label>
-                    <input type="radio" id="star3" name="feedback[rating]" value="3" />
-                    <label for="star3" title="3 stars">★</label>
-                    <input type="radio" id="star2" name="feedback[rating]" value="2" />
-                    <label for="star2" title="2 stars">★</label>
-                    <input type="radio" id="star1" name="feedback[rating]" value="1" />
-                    <label for="star1" title="1 star">★</label>
-                    <div class="invalid-feedback">Please add a title!</div>
-                </div>
+      {/* Feedback Popup */}
+      {showFeedback && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-6 w-96">
+            <h2 className="text-xl font-semibold text-center mb-4 text-pink-600">
+              Share Your Wanderlust Experience!
+            </h2>
 
-                <input type="text" id="name" name="feedback[name]" class="feedback-name form-control" placeholder="Enter your name here.">
-                <textarea id="comment" name="feedback[comment]" class="feedback-comment form-control" placeholder="Enter your comment here...." required></textarea>
+            {/* Feedback Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col space-y-3">
+              <div className="flex justify-center space-x-1 text-2xl text-yellow-400">
+                {[5, 4, 3, 2, 1].map((star) => (
+                  <label key={star}>
+                    <input
+                      type="radio"
+                      name="rating"
+                      value={star}
+                      className="hidden"
+                    />
+                    <span className="cursor-pointer">★</span>
+                  </label>
+                ))}
+              </div>
 
-                <div class="feed-buttons">
-                    <button id="close-button" class="close-button btn btn-secondary">Close</button>
-                    <button type="submit" class="submit-button btn btn-danger" data-aos="zoom-out-down">Submit</button>
-                </div>
+              <input
+                type="text"
+                name="name"
+                placeholder="Enter your name"
+                className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-400"
+              />
+
+              <textarea
+                name="comment"
+                placeholder="Enter your comment..."
+                required
+                className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-pink-400 h-24"
+              ></textarea>
+
+              <div className="flex justify-between mt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowFeedback(false)}
+                  className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-pink-600 text-white rounded hover:bg-pink-700"
+                >
+                  Submit
+                </button>
+              </div>
             </form>
+          </div>
         </div>
-    </div>
-</footer>
+      )}
+    </footer>
+  );
+};
 
-<script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-</script>
+export default Footer;

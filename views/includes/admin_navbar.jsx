@@ -1,153 +1,115 @@
-<nav class="navbar navbar-expand-lg sticky-top">
-    <div class="container">
-      <!-- Brand and explore link on the left -->
-      <a class="navbar-brand" href="/listing"> <i class="fa-solid fa-compass fa-2xl" style="--fa-rotate-angle: -39deg; color: #ff385c;"></i></a>
-      <a class="nav_wlc" href="/admin/dashboard"><b>Admin Dashboard</b></a>
-      
-      <!-- dark mode toggle button for mobile -->
-     <div class="toggle-container mobile-toggle">
-      <button class="darkModeToggle dark-mode-toggle">+
-        <i class="toggleIcon bx bxs-moon"></i>
-      </button>
-     </div>
-      
-      <!-- Navbar Toggler for small screens -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-              <span class="navbar-toggler-icon"></span>
-      </button>
-  
-      <!-- Navbar Collapse (links and form) -->
-      <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
-        
-        <!-- Left side navigation links -->
-        <ul class="navbar-nav ml-auto main-menues normal-nav">
-          <li class="nav-item h-effect">
-            <a class="nav-link" href="/admin/dashboard">Manage Listings</a>
-          </li>
-          <li class="nav-item h-effect">
-            <a class="nav-link" href="/admin/users">Manage Users</a>
-          </li>
-          <li class="nav-item h-effect">
-            <a class="nav-link" href="/admin/feedbacks">Manage Feedbacks</a>
-          </li>
-          <li class="nav-item toggle-container desktop-toggle">
-            <button class="darkModeToggle dark-mode-toggle">
-              <i class="toggleIcon bx bxs-moon"></i>
-            </button>
-          </li>
-        </ul>
-  
-        <!-- Nav bar for mobile only -->
-      <div class="mobile-nav">
-        <ul>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/dashboard">Manage Listings</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/users">Manage Users</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/admin/feedbacks">Manage Feedbacks</a>
-          </li>
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { Moon, Menu } from "lucide-react";
 
-          <% if(!currUser) {%> <!--If inside currUser have not any user data then show this-->
-            <li class="nav-item">
-              <a class="nav-link" href="/signup">Sign up</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/login">Log in</a>
-            </li>
-            <% } %>
+const Navbar = ({ currUser }) => {
+  const [darkMode, setDarkMode] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
-              <% if(currUser) {%>
-                <li class="nav-item">
-                  <a class="nav-link" href="/logout">Log out</a>
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  return (
+    <nav
+      className={`sticky top-0 z-50 w-full border-b ${
+        darkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"
+      }`}
+    >
+      <div className="container mx-auto flex items-center justify-between px-4 py-3">
+        {/* Left side */}
+        <div className="flex items-center space-x-3">
+          <Link to="/listing" className="text-rose-500 text-2xl">
+            <i className="fa-solid fa-compass fa-2xl" style={{ rotate: "-39deg" }}></i>
+          </Link>
+          <Link to="/admin/dashboard" className="font-bold hover:text-rose-500">
+            Admin Dashboard
+          </Link>
+        </div>
+
+        {/* Dark mode toggle (mobile) */}
+        <button
+          onClick={toggleDarkMode}
+          className="lg:hidden border rounded-full p-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+        >
+          <Moon size={20} />
+        </button>
+
+        {/* Hamburger Menu */}
+        <button
+          className="lg:hidden text-gray-600 dark:text-gray-200"
+          onClick={toggleMenu}
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Main Nav Links */}
+        <div
+          className={`${
+            isOpen ? "block" : "hidden"
+          } lg:flex lg:items-center lg:space-x-6`}
+        >
+          <ul className="flex flex-col lg:flex-row lg:space-x-6 items-center">
+            <li>
+              <Link to="/admin/dashboard" className="hover:text-rose-500">
+                Manage Listings
+              </Link>
+            </li>
+            <li>
+              <Link to="/admin/users" className="hover:text-rose-500">
+                Manage Users
+              </Link>
+            </li>
+            <li>
+              <Link to="/admin/feedbacks" className="hover:text-rose-500">
+                Manage Feedbacks
+              </Link>
+            </li>
+
+            {!currUser ? (
+              <>
+                <li>
+                  <Link to="/signup" className="hover:text-rose-500">
+                    Sign up
+                  </Link>
                 </li>
-                <% } %>
-        </ul>
+                <li>
+                  <Link to="/login" className="hover:text-rose-500">
+                    Log in
+                  </Link>
+                </li>
+              </>
+            ) : (
+              <li>
+                <Link to="/logout" className="hover:text-rose-500">
+                  Log out
+                </Link>
+              </li>
+            )}
 
-      </div>
-  
-        <div class="nav-link dropdown d-down flex normal-nav">
-          <a role="button" class="nav-link drop-button dropdown-toggle tg" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-bars"></i>
-            <% if(!currUser) {%>
-              <img src="/noprofilenav.png" alt="" class="nav-provile" style="
-              height: 1.9rem;
-              padding-left: .5rem">
-            <% } %>
-  
-            <% if(currUser) {%> 
-              <img src="/profilenav.png" alt="" class="nav-provile" style="
-              height: 1.9rem;
-              padding-left: .5rem
-              ">
-            <% } %>
-            
-          </a>
-          <ul class="dropdown-menu dropdown-menu-end desk-drop">
-            <% if(!currUser) {%>
-              <li class="nav-item drop">
-                <a class="nav-link" href="/login">Login</a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li class="nav-item drop">
-                <a class="nav-link" href="/signup">Signup</a>
-              </li>
-            <% } %>
-            <% if(currUser) {%>
-              <li class="nav-item drop"><a class="nav-link" href="/logout">Log Out</a></li>
-             <% } %>
-            
+            {/* Dark Mode Toggle (Desktop) */}
+            <li className="hidden lg:block">
+              <button
+                onClick={toggleDarkMode}
+                className="border rounded-full p-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                <Moon size={20} />
+              </button>
+            </li>
           </ul>
         </div>
+
+        {/* Profile dropdown (optional) */}
+        <div className="hidden lg:flex items-center space-x-2">
+          <i className="fa-solid fa-bars"></i>
+          <img
+            src={currUser ? "/profilenav.png" : "/noprofilenav.png"}
+            alt="profile"
+            className="h-8 w-8 rounded-full"
+          />
+        </div>
       </div>
-    </div>
-  </nav>
-  
-  <style>
-    .nav_wlc{
-      color: #303030;
-      text-decoration: none !important;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+    </nav>
+  );
+};
 
-    .nav_wlc:hover{
-      color: #FF5A5F;
-      text-decoration: none!important;
-      cursor: pointer;
-    }
-
-    /* Adjustments for small screens */
-    @media (max-width: 768px) {
-        .nav_wlc {
-          max-width: 150px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        #search_frm  {
-            width: 100% !important;
-            /* margin-right: 100px !important; */
-            margin-left: 10px !important;
-        }
-      }
-
-
-    /* Dark Mode Styles */
-    .dark-mode {
-          .nav_wlc{
-            color: #ff385c;
-            text-decoration: none!important;
-            cursor: pointer;
-          }
-          .nav_wlc i b:hover{
-            color: #FF5A5F;
-            transition: color 0.3s ease-in-out;
-            cursor: pointer;
-            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.7);
-          }
-        }
-  </style>
+export default Navbar;

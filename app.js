@@ -9,7 +9,6 @@ const mongoose = require("mongoose");
 const listing = require("./models/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
-const ejsMate = require("ejs-mate");
 const asyncwrap = require("./utils/error.js");
 const multer = require('multer');
 const { storage } = require("./cloudConfig.js");
@@ -24,59 +23,73 @@ const User = require("./models/user.js");
 const { isLoggedIn, isAdmin } = require("./middlewares/middleware.js");
 const { saveRedirectUrl } = require("./middlewares/middleware.js");
 const { isOwner, isAuthor } = require("./middlewares/middleware.js");
-const { index, newpost, createpost, editpost, saveEditpost, search, deletepost, showPost, signup, likeListing, topListings } = require("./controllers/listing.js");
-const { dashboard, showuser, deleteUser, deleteListing, viewIndividualListing, viewListingReview, deleteListingReview, adminListEditRender, adminSaveEditList, showFeedbacks, deleteFeedback, displayFeedback } = require("./controllers/admin.js");
-const { signupRender, siggnedUp, forgotPassword, passwordResetLink, resetPasswordTokenGet, resetPasswordTokenPatch, updatePasswordGet, updatePasswordPost, logout } = require("./controllers/user.js");
+const { 
+  index, newpost, createpost, editpost, saveEditpost, search, 
+  deletepost, showPost, signup, likeListing, topListings 
+} = require("./controllers/listing.js");
+const { 
+  dashboard, showuser, deleteUser, deleteListing, viewIndividualListing, 
+  viewListingReview, deleteListingReview, adminListEditRender, 
+  adminSaveEditList, showFeedbacks, deleteFeedback, displayFeedback 
+} = require("./controllers/admin.js");
+const { 
+  signupRender, siggnedUp, forgotPassword, passwordResetLink, 
+  resetPasswordTokenGet, resetPasswordTokenPatch, updatePasswordGet, 
+  updatePasswordPost, logout 
+} = require("./controllers/user.js");
 const { viewProfile, profileGet, profilePost } = require("./controllers/profile.js");
 const { contactPage, aboutPage, termsPage, privacyPage, contributors } = require("./controllers/others.js");
 const { deleteReview, reviewPost } = require("./controllers/reviews.js");
 const feedbackController = require('./controllers/feedback');
 const bookingController = require("./controllers/booking.js");
 const Blog = require("./models/blog.js");
-
-
 const cors = require('cors');
 const { contactUsController } = require("./controllers/contactUs.js");
 
+// 👇 NEW: use express-react-views for JSX templates
+const reactViews = require("express-react-views");
+
+// CORS
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? 'http://your-frontend-domain.com' : 'http://localhost:5173', // Allow React dev server
+  origin: process.env.NODE_ENV === 'production' 
+    ? 'http://your-frontend-domain.com' 
+    : 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 }));
 
 app.use(cookieparser());
 
+// MongoDB
 const dbUrl = process.env.ATLASDB_URL;
-
 
 async function main() {
   await mongoose.connect(dbUrl);
   console.log("database connected");
 }
-
 main().catch(err => console.log(err));
 
+// 👇 JSX Views setup (replaces EJS)
+app.set("view engine", "jsx");
+app.engine("jsx", reactViews.createEngine());
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "ejs");
+
+// Static files
 app.use(express.static(path.join(__dirname, "/public")));
-app.use(express.static(path.join(__dirname, "client/dist"))); // Serve React build files
+app.use(express.static(path.join(__dirname, "client/dist")));
+
 app.use(methodOverride('_method'));
 app.use(express.urlencoded({ extended: true }));
-app.engine('ejs', ejsMate);
 app.use(express.json());
 
-
+// Sessions
 const store = MongoStore.create({
   mongoUrl: dbUrl,
-  crypto: {
-    secret: process.env.SECRET
-  },
+  crypto: { secret: process.env.SECRET },
   touchAfter: 24 * 3600,
 });
 
-store.on("error", (err) => {
-  console.log("error in mongo session store", err);
-});
+store.on("error", (err) => console.log("error in mongo session store", err));
 
 const sessionOptions = {
   store,
@@ -93,26 +106,30 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
+// Passport Auth
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new localStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+// Global middleware
 app.use((req, res, next) => {
   res.locals.success = req.flash('success');
   res.locals.error = req.flash('error');
   res.locals.currUser = req.user || null;
-
   res.locals.isLoggedIn = req.isAuthenticated() || false;
 
   if (req.user && req.user.profilePicture && req.user.profilePicture.purl) {
-    let originalUrl = req.user.profilePicture.purl;
-    let modifiedProfilePic = originalUrl.replace("/upload", "/upload/q_auto,e_blur:50,w_250,h_250");
-    res.locals.profilePic = modifiedProfilePic;
+    const originalUrl = req.user.profilePicture.purl;
+    res.locals.profilePic = originalUrl.replace("/upload", "/upload/q_auto,e_blur:50,w_250,h_250");
   }
 
-  const publicRoutes = ["/login", "/signup", "/forgot-password", "/", "/about", "/contact", "/terms", "/privacy", "/listing", "/feedback", "/admin" ,"/admin/dashboard"];
+  const publicRoutes = [
+    "/login", "/signup", "/forgot-password", "/", "/about", 
+    "/contact", "/terms", "/privacy", "/listing", "/feedback", 
+    "/admin", "/admin/dashboard"
+  ];
 
   if (!req.isAuthenticated() && !publicRoutes.includes(req.path)) {
     req.flash("error", "Please sign in to continue.");
@@ -122,47 +139,47 @@ app.use((req, res, next) => {
   next();
 });
 
-// BLOG routes
+// BLOG Routes
 app.delete('/blogs/:id', async (req, res) => {
   try {
-      const blogId = req.params.id;
-      await Blog.findByIdAndDelete(blogId);
-      res.redirect('/blogs');
+    const blogId = req.params.id;
+    await Blog.findByIdAndDelete(blogId);
+    res.redirect('/blogs');
   } catch (err) {
-      console.error("Error deleting blog:", err);
-      res.redirect('/error');
+    console.error("Error deleting blog:", err);
+    res.redirect('/error');
   }
 });
 
 app.get('/blogs', isLoggedIn, asyncwrap(async (req, res) => {
   const blogs = await Blog.find({}).populate('blogOwner');
-  res.render('blog.ejs', { blogs });
+  res.render('blog', { blogs });
 }));
 
 app.post('/blogs', isLoggedIn, upload.single('blog[image]'), asyncwrap(async (req, res) => {
   try {
-      if (!req.body.blog) {
-          req.flash("error", "Please provide valid blog details.");
-          return res.status(404).send("Please provide valid blog details.");
-      }
+    if (!req.body.blog) {
+      req.flash("error", "Please provide valid blog details.");
+      return res.status(404).send("Please provide valid blog details.");
+    }
 
-      const { title, content, location } = req.body.blog;
+    const { title, content, location } = req.body.blog;
 
-      const newBlog = new Blog({
-          title,
-          content,
-          location,
-          blogOwner: req.user._id,
-          images: req.file ? [{ imgUrl: req.file.path, imgFilename: req.file.filename }] : []
-      });
+    const newBlog = new Blog({
+      title,
+      content,
+      location,
+      blogOwner: req.user._id,
+      images: req.file ? [{ imgUrl: req.file.path, imgFilename: req.file.filename }] : []
+    });
 
-      await newBlog.save();
+    await newBlog.save();
 
-      req.flash("success", "Blog post successfully created!");
-      res.redirect('/blogs');
+    req.flash("success", "Blog post successfully created!");
+    res.redirect('/blogs');
   } catch (err) {
-      console.log(err);
-      res.status(500).send("Error creating blog post");
+    console.log(err);
+    res.status(500).send("Error creating blog post");
   }
 }));
 
@@ -183,25 +200,23 @@ app.post('/admin/feedbacks/:id/toggleDisplay', isLoggedIn, isAdmin, asyncwrap(di
 // Default route
 app.get("/", asyncwrap(async (req, res) => {
   const listings = await listing.find();
-  res.render("index.ejs", { listings });
+  res.render("index", { listings });
 }));
-const Listing = require('./models/listing');  // Make sure this is imported
-// ...
 
+// Booking
+const Listing = require('./models/listing');
 app.get('/listing/:id/booking', asyncwrap(async (req, res) => {
   const listingId = req.params.id;
   const list = await Listing.findById(listingId);
-  if (!list) {
-    return res.status(404).send('Listing not found');
-  }
+  if (!list) return res.status(404).send('Listing not found');
   res.render('booking', { list });
 }));
 
-// Booking and Payment routes
+// Booking Routes
 const bookingRoutes = require('./routes/booking');
 app.use('/', bookingRoutes);
 
-// Others page
+// Static Pages
 app.get("/contact", contactPage);
 app.post("/contact", asyncwrap(contactUsController));
 app.get('/about', asyncwrap(aboutPage));
@@ -209,31 +224,27 @@ app.get('/terms', asyncwrap(termsPage));
 app.get('/privacy', asyncwrap(privacyPage));
 app.get('/contributors', asyncwrap(contributors));
 
-// Login Route
+// Auth Routes
 app.route("/login")
-  .get(asyncwrap((req, res) => {
-    res.render("login.ejs");
-  }))
+  .get(asyncwrap((req, res) => res.render("login")))
   .post(
     saveRedirectUrl,
     passport.authenticate("local", {
       failureRedirect: "/login",
       failureFlash: true
     }), (req, res) => {
-      req.flash("success", "Welcome back to wanderlust!");
-      if(req.user.isAdmin) {
-        req.flash("success", "Welcome back to wanderlust! You are an admin.");
+      req.flash("success", "Welcome back to Wanderlust!");
+      if (req.user.isAdmin) {
+        req.flash("success", "Welcome back, Admin!");
         return res.redirect("/admin/dashboard");
       }
-      let redirect = res.locals.redirectUrl || "/listing";  
+      let redirect = res.locals.redirectUrl || "/listing";
       res.redirect(redirect);
   });
 
-// Logout Route
 app.get('/logout', isLoggedIn, logout);
 app.get("/signup", asyncwrap(signupRender));
 app.post('/signup', asyncwrap(siggnedUp));
-app.get("/logout", logout);
 app.get('/forgot-password', forgotPassword);
 app.post('/resetlink-password', passwordResetLink);
 app.get('/resetPassword/:token', resetPasswordTokenGet);
@@ -241,9 +252,7 @@ app.patch("/resetPassword/:token", resetPasswordTokenPatch);
 app.get('/user/updatePass', isLoggedIn, updatePasswordGet);
 app.post('/user/updatePass', isLoggedIn, updatePasswordPost);
 
-
-
-// Profile routes
+// Profile
 app.get('/profile', isLoggedIn, asyncwrap(viewProfile));
 app.get("/profile/edit", isLoggedIn, profileGet);
 app.post('/profile/edit', isLoggedIn, upload.single("profileimage"), profilePost);
@@ -268,20 +277,18 @@ app.post("/feedback", isLoggedIn, asyncwrap(feedbackController.feedbackPost));
 app.post("/listing/:id/review", isLoggedIn, asyncwrap(reviewPost));
 app.delete("/listing/:id/review/:reviewId", isLoggedIn, isAuthor, asyncwrap(deleteReview));
 
-// Catch-all for invalid routes - serve React app for client-side routing
+// Catch-all for React frontend
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "client/dist/index.html"));
 });
 
-// Error handling middleware
+// Error handler
 app.use((err, req, res, next) => {
   const { status = 500, msg = "Something went wrong" } = err;
   console.log("The error is --> ", err);
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
   res.status(status);
-  res.render("error.ejs", { msg, status });
+  res.render("error", { msg, status });
 });
 
 app.listen(port, () => {

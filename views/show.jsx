@@ -1,478 +1,199 @@
-<% layout("/layouts/boilerplate") %>
-<script>
-    let accessToken = "<%= process.env.MAP_TOKEN %>";
-    let list = <%- JSON.stringify(list) %>;
-    
-</script>
-<style>
-.show-img {
-    object-fit: cover;
-    height: 400px;
-    border-radius: 1rem;
-}
+import React, { useEffect, useState } from "react";
+import mapboxgl from "mapbox-gl";
 
-#map {
-    border-radius: 10px;
-    margin-bottom: 1rem;
-}
+mapboxgl.accessToken = import.meta.env.VITE_MAP_TOKEN; // or pass mapToken prop
 
-.card {
-    margin-top: 10px;
-}
+const ShowListing = ({ list, currUser, userHasReviewed, mapToken }) => {
+  const [gstEnabled, setGstEnabled] = useState(false);
+  const gstRate = 0.18;
 
-.card-title {
-    font-size: 1.5rem;
-}
+  useEffect(() => {
+    mapboxgl.accessToken = mapToken || import.meta.env.VITE_MAP_TOKEN;
+    const map = new mapboxgl.Map({
+      container: "map",
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: list.geometry.coordinates,
+      zoom: 9,
+    });
 
-.starability-slot {
-    display: flex;
-    justify-content: center;
-    margin: 10px 0;
-}
+    new mapboxgl.Marker()
+      .setLngLat(list.geometry.coordinates)
+      .setPopup(new mapboxgl.Popup().setHTML(`<h4>${list.title}</h4>`))
+      .addTo(map);
+  }, [list, mapToken]);
 
-.btn {
-    margin: 5px;
-}
-.review-text{
-    font-size: 0.9rem;
-    margin-bottom: -0.3rem;
-}
-/* reviewshow css */
-.heading h4{
-    font-size: 1rem;
-    margin-left: -0.5rem !important;
-    font-weight: 600 !important;
-}
-.model-star{
-    margin-top: 1rem;
-}
-.model-star i{
-    color: #ff385c;
-    font-size: 1.3rem;
-}
-.user-credential img{
-    height: 3rem !important;
-    width: 3rem !important;
-}
-.user-credential .u-name{
-    font-size: 1.5rem;
-}
-.heading{
-    display: flex;
-    justify-content: space-between;
-}
-.card-title img{
-    height: 2rem;
-    margin-right: 0.3rem;
-}
+  const basePrice = list.price;
+  const totalPrice = gstEnabled
+    ? (basePrice * (1 + gstRate)).toLocaleString("en-IN", {
+        style: "currency",
+        currency: "INR",
+      })
+    : basePrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
 
-.card-text i{
-    color: #ff385c;
-    font-size: 1.1rem;
-}
+  const toggleGST = () => setGstEnabled(!gstEnabled);
 
-.trash {
-    color: #ff385c;
-    transition: all 0.3s ease;
-}
+  return (
+    <div className="container mx-auto px-4 mt-10 text-gray-800 dark:text-gray-100">
+      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6">
+        {/* Title */}
+        <h2 className="text-3xl font-semibold mb-4 text-center text-rose-500">
+          {list.title}
+        </h2>
 
-.trash:hover {
-    transform: translateY(-0.2rem) scale(1.1) ;
-    color: #FF5A5F; 
-}
-
-#review_logo{
-    height: 2rem;
-    width: 2rem;
-    border-radius: 50% !important;
-    margin-right: 0.5rem;
-    transition: transform 0.3s ease;
-}
-.review-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    padding: 0.7rem;
-}
-
-@media (max-width: 768px) {
-    .review-card {
-        margin-bottom: 20px; /* Adjust spacing for smaller screens */
-    }
-}
-#review_logo:hover{
-    transform: scale(1.2);
-    cursor: pointer;
-}
-  .btns {
-        display: flex; 
-        align-items: center;
-        gap: 10px; /* Optional: 
-    }
-    
-    .btns form {
-        margin-right: 10px; /* Space between form buttons */
-    }
-    
-/* Animation on the review cards */
-.review-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    padding: 0.7rem;
-}
-
-
-#trash{
-    border: none;
-    background-color: transparent;
-}
-@media (max-width: 768px) {
-    .show-img {
-        height: 250px;
-    }
-
-    .map {
-        height: 200px; 
-    }
-}
-.card {
-    background-color: #fafafa;
-    /* border: 1px solid #c2c2c2; */
-    box-shadow: -1px 4px 12px rgba(120, 120, 120, 0.4);
-}
-.owner-avatar{
-    height: 2.7rem !important;
-    width: 2.7rem !important;
-    border-radius: 50% !important;
-    border: 3px solid #ff385c;
-    box-shadow: 2px 2px 5px #000000;
-    margin-right: 0.5rem;
-    transition: all 0.3s ease;
-}
-.owner-avatar:hover{
-    transform: scale(1.2);
-    cursor: pointer;
-}
-.listing-price{
-    margin-top: 0.5rem;
-}
-.review-card{
-    margin: 0 !important;
-}
-.text-secondary{
-    color: #c6c6c6 !important;
-}
-.model-profile{
-    border: 3px solid #ff385c !important;
-}
-.n-review-profile{
-    border: 2px solid #ff385c;
-}
-.model-comment{
-    opacity: 0.7 !important;
-}
-/* Form Container - Floating Effect */
-.dark-mode{
-    /* show listing */
-    h1, h2, h3, h4, p, hr, h6, .card-title {
-        color: #e0e0e0;
-    }
-    .text-secondary{
-    color: #626262 !important;
-    }
-    .card {
-        border: 1px solid #2b2b2b;
-        box-shadow: -1px 4px 12px rgba(3, 3, 3, 0.4);
-    }
-
-    .listing-card {
-        background-color: #323232;
-    }
-
-    .show-img {
-        border: 1px solid #333;
-    }
-    .owner-avatar{
-    border: 3px solid #ff385c;
-    box-shadow: 2px 2px 5px #000000;
-    }
-    .card-body p{
-        color: #f9f9f9;
-    }
-    .card-body p b{
-        color: #979797;    
-    }
-    /* REVIEW */
-    /* Input Fields Styling */
-    .review-form input {
-        background-color: #2c2c2c;
-        color: #ffffff;
-        border: 1px solid #555555;
-        transition: box-shadow 0.3s ease; /* Smooth hover transition for input */
-    }
-
-    .review-form input[type="text"]::placeholder{
-        color: #aaaaaa;
-        border: 1px solid #555555;
-        border-radius: 5px;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
-    }
-
-    .review-form button[type="submit"] {
-        border: 2px solid #999;
-        color: #999;
-        background: #d4d4d4;
-    }
-    .review-form button[type="submit"]:hover {
-        color: #333;
-        border: none;
-        background: #fdfdfd;
-    }
-
-    .text-muted {
-    --bs-text-opacity: 1;
-    color:  #e0e0e0 !important;
-    }
-    .listing-card h2{
-        color: antiquewhite;
-    }
-    .review-popup-model{
-        background-color: #323232;
-        color: #fff !important;
-    }
-    .mapboxgl-popup-content p{
-        color: #555555 !important;
-    }
-    .mapboxgl-popup-content strong{
-        color: #2b2b2b !important;
-    }
-}
-</style>
-
-<body class="mt-10">
-    <br>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10 col-sm-12 offset-lg-1 offset-md-1 offset-sm-1 mx-auto mb-0">
-                <div class="card listing-card ms-0">
-                    <h2 class="mb-4  notranslate">
-                        <%= list.title %>
-                    </h2>
-                    <!-- Carousel for images -->
-                    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            <% for (let i = 0; i < list.image.length; i++) { %>
-                                <div class="carousel-item <%= i === 0 ? 'active' : '' %>">
-                                    <img src="<%= list.image[i].url %>" class="d-block w-100 show-img" alt="Image of <%= list.title %>">
-                                </div>
-                            <% } %>
-                        </div>
-                        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Previous</span>
-                        </button>
-                        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
-                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                            <span class="visually-hidden">Next</span>
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="mt-1 notranslate">About the property</h5>
-                        <span><%= list.description %></span>
-                        <p class="listing-price"><b>price:</b>
-                            &#8377;<%= list.price.toLocaleString("en-IN") %>/night
-                        </p>
-                        <p class="listing-location"><b>Location:</b>
-                            <%=list.location%>
-                        </p>
-                        <p class="listing-location"><b>Country:</b>
-                            <%=list.country%>
-                        </p>
-                        <p class="mt-2">
-                            <% if (list.owner && list.owner.profilePicture && list.owner.profilePicture.purl) { %>
-
-                                <!-- Set the low resolution for profile pic -->
-                                <%  
-                                    let normalURL = list.owner.profilePicture.purl;
-                                    let lowResURL =  normalURL.replace("/upload", "/upload/q_auto,e_blur:50,w_250,h_250");
-                                %>
-
-                                <img src="<%=lowResURL%>" alt="User" class="owner-avatar">
-                            <% } else { %>
-                                <img src="/profile.png" alt="User" class="owner-avatar">
-                            <% } %>
-                                <% if (list.owner) { %>
-                                    Owned by: <b><%= list.owner.username %></b>
-                                <% } else { %>
-                                    Owned by: <b>Unknown User</b>
-                                <% } %>
-                            </p>
-                            <p>Likes: <%= list.likes %></p>
-                            <div class="btns d-flex align-items-center">
-                                <form action="/listing/<%= list._id %>/like" method="POST" class="me-2">
-                                    <button type="submit" class="btn btn-light">
-                                        <% if (list.likedBy && list.likedBy.includes(currUser._id)) { %>
-                                            ❤️ <!-- Filled heart for liked -->
-                                        <% } else { %>
-                                            🤍 <!-- Empty heart for not liked -->
-                                        <% } %>
-                                    </button>
-                                </form>
-                            
-                                <form method="get" action="/listing/<%= list._id %>/booking" class="me-2">
-                                    <button class="btn btn-danger notranslate">Book</button>
-                                </form>
-                            
-                                <% if (currUser && list.owner && currUser._id.equals(list.owner._id)) { %>
-                                    <div class="buttons d-flex">
-                                        <form method="get" action="/listing/<%= list._id %>/edit" class="me-2">
-                                            <button class="btn btn-danger">Edit</button>
-                                        </form>
-                            
-                                        <form method="post" action="/listing/<%= list._id %>?_method=DELETE" class="me-2">
-                                            <button class="btn btn-secondary">Delete</button>
-                                        </form>
-                                    </div>
-                                <% } %> 
-                            </div>
-
-                </div>
-
-
-
-                <!-- MAP -->
-                <div class="col-12 offset-1 mx-auto mb-5">
-                    <h3 class="text-center" style="padding: 10px;">Where you will be</h3>
-                    <div id="map" style="width: 100%; height: 400px;"></div>
-                </div>
-
-            
-            
-            
-
-            
-            <!-- REVIEW -->
-            <div class="container">
-                <% if (currUser) { %>
-                    <% if (list.owner && !currUser._id.equals(list.owner._id)) { %>
-                        <% if (!userHasReviewed) { %>  <!-- Check if the user hasn't already left a review -->
-                        <hr>
-                        <p>
-                            <button class="btn btn-outline-danger btn-sm mt-0" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#collapseWidthExample" aria-expanded="false"
-                                aria-controls="collapseWidthExample">
-                                Leave a review
-                            </button>
-                        </p>
-            
-                        <div>
-                            <div class="collapse" id="collapseWidthExample">
-                                <div class="card listing-card card-body mx-auto ms-0" style="width: 100%;">
-            
-                                    <!-- Form for adding reviews -->
-                                    <form action="/listing/<%= list._id %>/review" method="post" novalidate class="needs-validation">
-                                        <div class="review-form">
-                                            <label for="rating" class="form-label bold2"><b>Rating:</b></label>
-                                            <fieldset class="starability-grow">
-                                                <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked aria-label="No rating." />
-                                                <input type="radio" id="rate1" name="review[rating]" value="1" />
-                                                <label for="rate1">1 star.</label>
-                                                <input type="radio" id="rate2" name="review[rating]" value="2" />
-                                                <label for="rate2">2 stars.</label>
-                                                <input type="radio" id="rate3" name="review[rating]" value="3" />
-                                                <label for="rate3">3 stars.</label>
-                                                <input type="radio" id="rate4" name="review[rating]" value="4" />
-                                                <label for="rate4">4 stars.</label>
-                                                <input type="radio" id="rate5" name="review[rating]" value="5" />
-                                                <label for="rate5">5 stars.</label>
-                                                <span class="starability-focus-ring"></span>
-                                            </fieldset>
-                                        </div>
-            
-                                        <div>
-                                            <label for="comment" class="form-label bold2"><b>Comments:</b></label>
-                                            <textarea name="review[Comments]" class="form-control focus-ring focus-ring-secondary border rounded-1" id="comment" placeholder="Add some comments here..." rows="4" required></textarea>
-                                            <div class="invalid-feedback">Please add some comments for review!</div>
-                                        </div>
-            
-                                        <button class="btn btn-outline-secondary btn-sm mt-4">Submit</button>
-                                    </form>
-            
-                                </div>
-                            </div>
-                        </div>
-                    <% } else { %>
-                        <hr>
-                        <p class="text-secondary">⚠️ You have already left a review for this listing.</p>
-                    <% } %>
-                    <% } %>
-                <% } %>
-                
-
-                <!-- All Reviews -->
-                <!-- SHow Reviews -->
-              <!-- All Reviews -->
-<hr>
-<div class="container">
-    <% if (list.reviews.length == 0) { %>
-        <h6>⭐ No review posted yet for this property.</h6>
-    <% } %>
-    <% if (list.reviews.length > 0) { %>
-        <h4>🌟 All Reviews</h4>
-        <div class="row mt-4">
-            <% for (let i = 0; i < list.reviews.length; i++) { %>
-                <% let review = list.reviews[i]; %>
-                <div class="col-12 col-sm-6 col-md-4 mb-3"> <!-- Adjusted column size for responsiveness -->
-                    <div class="card review-card h-100 ms-0">
-                        <div class="card-body d-flex flex-column">
-                            <div class="heading">
-                                <h4 class="card-title">
-                                    <% if (review.author && review.author.profilePicture && review.author.profilePicture.purl) { %>
-                                        <% let normalReviewerProfile = review.author.profilePicture.purl; %>
-                                        <img id="review_logo" src="<%=normalReviewerProfile%>" alt="Reviewer" class="reviewer-profile n-review-profile">
-                                    <% } else { %>
-                                        <img id="review_logo" src="/profile.png" alt="Reviewer" class="reviewer-profile n-review-profile">
-                                    <% } %>
-                                    <% if (review.author) { %>
-                                        <%= review.author.username %> <span style="font-size: 9px; opacity: 0.7;">owner</span>
-                                    <% } else { %>
-                                        <span style="font-size: 9px; opacity: 0.7;">Unknown author</span>
-                                    <% } %>
-                                </h4>
-                            </div>
-                            <p class="card-text mt-2">
-                                <% for (let j = 1; j <= 5; j++) { %>
-                                    <% if (j <= review.rating) { %>
-                                        <i class="fa-solid fa-star star"></i>
-                                    <% } else { %>
-                                        <i class="fa-regular fa-star star"></i>
-                                    <% } %>
-                                <% } %>
-                          <p class="flex-grow-1">
-    <%= review.Comments && review.Comments.length > 150 
-        ? review.Comments.substring(0, 150) + '... ' 
-        : review.Comments || '' 
-    %>
-    <% if (review.Comments && review.Comments.length > 150) { %>
-        <a class="text-primary" data-bs-toggle="modal" data-bs-target="#modal-<%= i %>" style="cursor: pointer;">Read more</a>
-    <% } %>
-</p>
-
-                            <small class="text-muted" style="font-size: 10px;">
-                                <i class='bx bx-error-circle'></i> Verified by Wanderlust
-                            </small>
-                        </div>
-                    </div>
-                </div> <!-- End of review card -->
-            <% } %> <!-- End of reviews loop -->
-        </div> <!-- End of row -->
-    <% } %> <!-- End of reviews check -->
-</div> <!-- End of container -->
-                
-                </div>
-            </div>
-            </div>
+        {/* Image Carousel */}
+        <div className="relative w-full overflow-hidden rounded-lg mb-6">
+          <div className="flex overflow-x-scroll space-x-3">
+            {list.image.map((img, i) => (
+              <img
+                key={i}
+                src={img.url}
+                alt={`Image ${i}`}
+                className="w-[400px] h-[300px] object-cover rounded-lg"
+              />
+            ))}
+          </div>
         </div>
+
+        {/* Details */}
+        <div className="space-y-3">
+          <p>
+            <span className="font-semibold">About:</span> {list.description}
+          </p>
+          <p>
+            <span className="font-semibold">Price:</span> {totalPrice} / night{" "}
+            <span className="text-sm text-gray-500">
+              ({gstEnabled ? "incl. GST" : "excl. GST"})
+            </span>
+          </p>
+          <p>
+            <span className="font-semibold">Location:</span> {list.location},{" "}
+            {list.country}
+          </p>
+        </div>
+
+        {/* Owner Info */}
+        <div className="mt-4 flex items-center space-x-3">
+          <img
+            src={
+              list.owner?.profilePicture?.purl || "/profile.png"
+            }
+            alt="Owner"
+            className="h-10 w-10 rounded-full border-2 border-rose-500"
+          />
+          <p className="font-semibold">
+            Owned by: {list.owner?.username || "Unknown"}
+          </p>
+        </div>
+
+        {/* Buttons */}
+        <div className="flex flex-wrap gap-3 mt-4">
+          <form method="POST" action={`/listing/${list._id}/like`}>
+            <button
+              type="submit"
+              className="bg-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+            >
+              {list.likedBy?.includes(currUser?._id) ? "❤️" : "🤍"}
+            </button>
+          </form>
+
+          <form method="GET" action={`/listing/${list._id}/booking`}>
+            <button className="bg-rose-500 text-white px-4 py-2 rounded-lg hover:bg-rose-600">
+              Book
+            </button>
+          </form>
+
+          {currUser && list.owner && currUser._id === list.owner._id && (
+            <>
+              <form method="GET" action={`/listing/${list._id}/edit`}>
+                <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+                  Edit
+                </button>
+              </form>
+              <form method="POST" action={`/listing/${list._id}?_method=DELETE`}>
+                <button className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+                  Delete
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+
+        {/* GST Toggle */}
+        <div className="mt-4 flex justify-end">
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={gstEnabled}
+              onChange={toggleGST}
+              className="h-4 w-4 accent-rose-500"
+            />
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Display total after taxes
+            </span>
+          </label>
+        </div>
+
+        {/* Map */}
+        <div className="mt-8">
+          <h3 className="text-xl text-center font-medium mb-3">
+            Where you'll be
+          </h3>
+          <div id="map" className="w-full h-[400px] rounded-lg shadow-md" />
+        </div>
+
+        {/* Reviews */}
+        <div className="mt-10">
+          <h3 className="text-xl font-semibold mb-4">🌟 Reviews</h3>
+
+          {list.reviews.length === 0 ? (
+            <p className="text-gray-500">No reviews yet.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {list.reviews.map((review, i) => (
+                <div
+                  key={i}
+                  className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 shadow-md transition hover:scale-[1.01]"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <img
+                      src={
+                        review.author?.profilePicture?.purl || "/profile.png"
+                      }
+                      alt="Reviewer"
+                      className="h-8 w-8 rounded-full border border-rose-500"
+                    />
+                    <span className="font-semibold">
+                      {review.author?.username || "Anonymous"}
+                    </span>
+                  </div>
+                  <div className="flex mb-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <i
+                        key={star}
+                        className={`fa-star ${
+                          star <= review.rating
+                            ? "fa-solid text-yellow-400"
+                            : "fa-regular text-gray-400"
+                        }`}
+                      ></i>
+                    ))}
+                  </div>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {review.Comments?.length > 150
+                      ? review.Comments.substring(0, 150) + "..."
+                      : review.Comments}
+                  </p>
+                  <small className="text-xs text-gray-500">
+                    Verified by Wanderlust
+                  </small>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
-    
-    <script src="/js/map.js"></script> <!--Call the script file at the end because the map will be displayed at the end-->
-</body>
+  );
+};
+
+export default ShowListing;

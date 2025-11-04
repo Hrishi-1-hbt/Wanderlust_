@@ -1,73 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Payment Status</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f8ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .status-container {
-            background: white;
-            padding: 40px 60px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-        }
-        h1 {
-            margin-bottom: 20px;
-        }
-        .success {
-            color: #28a745;
-        }
-        .failure {
-            color: #dc3545;
-        }
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-            color: #333;
-        }
-        button {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 14px 30px;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-    </style>
-</head>
-<body>
-    <div class="status-container">
-        <h1 class="<%= status === 'success' ? 'success' : 'failure' %>">
-            <% if (status === 'success') { %>
-                Payment Successful
-            <% } else { %>
-                Payment Failed
-            <% } %>
+// views/PaymentStatus.jsx
+import React from "react";
+
+const PaymentStatus = ({ status }) => {
+  const isSuccess = status === "success";
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-blue-50 font-[Segoe_UI]">
+      <div className="bg-white shadow-lg rounded-xl p-10 max-w-md text-center">
+        <h1
+          className={`text-3xl font-bold mb-4 ${
+            isSuccess ? "text-green-600" : "text-red-600"
+          }`}
+        >
+          {isSuccess ? "Payment Successful" : "Payment Failed"}
         </h1>
-        <p>
-            <% if (status === 'success') { %>
-                Thank you for your payment.
-            <% } else { %>
-                Unfortunately, your payment was not successful. Please try again.
-            <% } %>
+
+        <p className="text-gray-700 text-lg mb-8">
+          {isSuccess
+            ? "Thank you for your payment."
+            : "Unfortunately, your payment was not successful. Please try again."}
         </p>
-        <button onclick="window.location.href='/'">Return to Home</button>
+
+        <button
+          onClick={() => (window.location.href = "/")}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold px-6 py-3 rounded-lg transition-all duration-200"
+        >
+          Return to Home
+        </button>
+      </div>
     </div>
-</body>
-</html>
+  );
+};
+
+export default PaymentStatus;

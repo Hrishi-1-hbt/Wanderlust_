@@ -1,215 +1,118 @@
-<!-- INCLUDE boilerplate -->
-<% layout("/layouts/admin_boilerplate") %>
+import React from "react";
 
-    <style>
-        /* Styling for the Listing Container */
-        .container.listing {
-            margin: 2rem auto;
-            padding: 2rem;
-            background: inherit;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
+const AdminListingDetails = ({ list }) => {
+  if (!list) return null;
 
-        .container.listing:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-        }
+  return (
+    <div className="max-w-6xl mx-auto my-10 p-8 bg-white dark:bg-gray-900 rounded-xl shadow-lg transition-transform duration-300 hover:-translate-y-1 hover:shadow-2xl">
+      {/* Title */}
+      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-2 mb-5">
+        {list.title}
+      </h1>
 
-        /* Title Styling */
-        .container.listing h1 {
-            font-family: rakkas;
-            font-size: 2.2rem;
-            color: #494e53;
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 0.5rem;
-        }
+      {/* Details */}
+      <div className="space-y-3 text-gray-700 dark:text-gray-300">
+        <p>
+          <strong className="font-semibold dark:text-gray-100">Description:</strong>{" "}
+          {list.description}
+        </p>
+        <p>
+          <strong className="font-semibold dark:text-gray-100">Price:</strong> ₹
+          {list.price}
+        </p>
+        <p>
+          <strong className="font-semibold dark:text-gray-100">Location:</strong>{" "}
+          {list.location}, {list.country}
+        </p>
 
-        /* Description and Details */
-        .container.listing p {
-            margin-left: 2rem;
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 1rem;
-            line-height: 1.6;
-        }
+        {/* Tags */}
+        <div className="mt-3">
+          {list.tags && list.tags.length > 0 ? (
+            list.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="inline-block bg-blue-500 text-white text-sm px-3 py-1 rounded-full mr-2 mb-2"
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="inline-block bg-gray-400 text-white text-sm px-3 py-1 rounded-full">
+              No Tags
+            </span>
+          )}
+        </div>
+      </div>
 
-        .container.listing strong {
-            color: #333;
-            font-family: rakkas;
-            font-weight: 600;
-        }
+      {/* Image Gallery */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center">
+        {list.image &&
+          list.image.map((img, index) => (
+            <img
+              key={index}
+              src={img.url}
+              alt={img.filename}
+              className="w-full h-72 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105 hover:shadow-xl"
+            />
+          ))}
+      </div>
 
-        /* Image Gallery */
-        .image-gallery {
-            margin-top: 1.5rem;
-            border-radius: 8px;
-            overflow: hidden;
-        }
+      {/* Reviews */}
+      <div className="mt-10">
+        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100 mb-5">
+          Reviews
+        </h2>
 
-        .image-gallery img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            text-align: center;
-            border-radius: 8px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+        {list.reviews && list.reviews.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300">
+              <thead className="bg-gray-100 dark:bg-gray-800">
+                <tr>
+                  <th className="px-4 py-2 border dark:border-gray-700 text-left">Review</th>
+                  <th className="px-4 py-2 border dark:border-gray-700 text-left">Rating</th>
+                  <th className="px-4 py-2 border dark:border-gray-700 text-left">Owner</th>
+                  <th className="px-4 py-2 border dark:border-gray-700 text-left">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.reviews.map((review, index) => (
+                  <tr
+                    key={index}
+                    className="border-t border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition"
+                  >
+                    <td className="px-4 py-2">{review.Comments}</td>
+                    <td className="px-4 py-2 font-semibold">{review.rating}</td>
+                    <td className="px-4 py-2 italic text-yellow-500">{review.author.username}</td>
+                    <td className="px-4 py-2">
+                      <form
+                        action={`/admin/listing/${list._id}/reviews/${review._id}?_method=DELETE`}
+                        method="POST"
+                        onSubmit={(e) => {
+                          if (!window.confirm("Are you sure you want to delete this listing Review?"))
+                            e.preventDefault();
+                        }}
+                      >
+                        <button
+                          type="submit"
+                          className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium"
+                        >
+                          Delete
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-center italic text-gray-500 dark:text-gray-400">
+            No reviews available for this listing.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
 
-        .image-gallery img:hover {
-            transform: scale(1.01);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Actions Button */
-        .actions {
-            display: flex;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        /* Basic table styles */
-        .reviews-title {
-            font-family: 'Rakkas';
-        }
-        .reviews-container {
-            margin: 0 auto;
-        }
-        .reviews-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        .reviews-table th, .reviews-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        .reviews-table th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        .review-author {
-            font-style: italic;
-        }
-        .no-reviews-message {
-            text-align: center;
-            color: #888;
-            font-style: italic;
-        }
-
-        /* DARK MODE CSS */
-        .dark-mode{
-            /* Dark mode for container */
-            .listing {
-                background-color: #1f1f1f;
-                border: 1px solid #333;
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
-            }
-
-            /* Headings */
-            .listing h1 {
-                color: #ff6b6b;
-                border-bottom: 2px solid #333;
-            }
-
-            /* Paragraph and text styling */
-            .listing p,
-            .listing strong {
-                color: #b0b0b0;
-            }
-
-            /* Image Gallery styling */
-            .image-gallery img {
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
-            }
-
-            /* Table styling for reviews */
-            .reviews-table {
-                background-color: #1f1f1f;
-                color: #e0e0e0;
-                border-color: #333;
-            }
-
-            .reviews-table th {
-                background-color: #333;
-            }
-
-            .reviews-table td {
-                border: 1px solid #444;
-            }
-
-            .review-author {
-                color: #ffb74d;
-            }
-
-            .reviews-title {
-                color: #e9ecef;
-            }
-            .no-reviews-message {
-                color: #888;
-            }
-        }
-    </style>
-
-        <div class="container listing">
-            <h1><%= list.title %></h1>
-            <p><strong>Description:</strong> <%= list.description %></p>
-            <p><strong>Price:</strong> &#8377;<%= list.price %></p>
-            <p><strong>Location:</strong> <%= list.location %>, <%= list.country %></p>
-            <!-- tags -->
-            <p>
-                <% if (list.tags && list.tags.length>0) { %>
-                  <% list.tags.forEach(tag => { %>
-                    <span class="badge bg-primary me-1"><%= tag %></span>
-                <% }) %>
-                <% } else{ %>
-                  <span class="badge bg-secondary me-1">No Tags</span>
-                <% } %>
-            </p>
-            <!-- Centered Image Gallery with Bootstrap Columns -->
-            <div class="image-gallery row col-10 offset-1">
-                <% list.image.forEach(image => { %>
-                    <div class="col-md-6 col-lg-12 mb-4">
-                        <img src="<%= image.url %>" alt="<%= image.filename %>" class="img-fluid gallery-image">
-                    </div>
-                <% }) %>
-            </div>
-            <div class="reviews row">
-                <h2 class="reviews-title mb-5 mt-3 text-center">Reviews</h2>
-                <div class="reviews-container col-10 offset-1">
-                    <% if (list.reviews.length > 0) { %>
-                        <table class="reviews-table">
-                            <thead>
-                                <tr>
-                                    <th>Review</th>
-                                    <th>Ratings</th>
-                                    <th>Owner</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% list.reviews.forEach(review => { %>
-                                    <tr>
-                                        <td><%= review.Comments %></td>
-                                        <td><b><%= review.rating %></b></td>
-                                        <td class="review-author"><%= review.author.username %></td>
-                                        <td>
-                                            <form action="/admin/listing/<%= list._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete this listing Review?');" class="delete-form">
-                                                <button type="submit" class="btn btn-outline-danger">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                <% }); %>
-                            </tbody>
-                        </table>
-                    <% } else { %>
-                        <p class="no-reviews-message">No reviews available for this listing.</p>
-                    <% } %>
-                </div>
-            </div>
+export default AdminListingDetails;

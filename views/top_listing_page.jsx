@@ -1,141 +1,97 @@
+import React, { useState, useEffect } from "react";
 
+const TopProperties = ({ listings = [] }) => {
+  const [includeGST, setIncludeGST] = useState(false);
+  const gstRate = 0.18;
 
+  const formatPrice = (price) =>
+    price.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+    });
 
-<%- layout("/layouts/boilerplate") -%>
-  <style>
-    .listing-card {
-      min-height: fit-content !important;
-      /* padding-bottom: 1rem !important; */
-    }
+  const toggleGST = () => setIncludeGST(!includeGST);
 
-    .popup {
-      transition: transform 0.3s ease;
-    }
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-neutral-900 px-6 md:px-12 py-10">
+      <h2 className="text-center text-3xl font-semibold mb-8 text-rose-600 dark:text-white">
+        Top Properties
+      </h2>
 
-    .popup:hover {
-      /* transform: translateY(-0.2rem); */
-      transform: scale(1.01) translateY(-0.1rem);
-    }
-
-    .card-img-top {
-      height: 20rem !important;
-    }
-
-    .show_btn {
-      margin-bottom: 0 !important;
-    }
-
-    .card-body {
-      padding-bottom: 0 !important;
-      height: fit-content !important;
-      /* max-height: auto; */
-    }
-
-    .tax-toggler-container {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .tax-toggler {
-      box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2);
-      width: 200px;
-      position: relative;
-      right: 1rem;
-      padding: 8px 14px;
-      border-radius: 8px;
-      z-index: 10;
-    }
-
-    .tax-toggler label {
-      font-size: 11px;
-      margin-left: 5px;
-      cursor: pointer;
-    }
-
-    .red-text {
-      color: rgba(255, 0, 0, 0.607);
-    }
-    .tax-container{
-      margin-top: 2rem;
-      margin-bottom: 2.5rem;
-    }
-    .card-title{
-      color: #ff385c;
-    }
-    .dark-mode{
-        .head-top{
-            color: #fff;
-        }
-    }
-  </style>
-      <h2 class="text-center mt-5 head-top">Top Properties</h2>
-  <div class="tax-container">
-    <!-- GST toggler -->
-    <div class="tax-toggler-container">
-      <div class="tax-toggler">
-        <div class="form-check-reverse form-switch">
-          <input type="checkbox" role="switch" class="form-check-input" id="gstToggle" onclick="toggleGST()">
-          <label for="gstToggle" class="form-check-label">Display total after taxes</label>
+      {/* GST Toggle */}
+      <div className="flex justify-end mb-8">
+        <div className="flex items-center bg-white dark:bg-neutral-800 shadow-md px-4 py-2 rounded-lg w-60">
+          <label className="text-sm text-gray-700 dark:text-gray-300 mr-2">
+            Display total after taxes
+          </label>
+          <input
+            type="checkbox"
+            checked={includeGST}
+            onChange={toggleGST}
+            className="w-5 h-5 accent-rose-500 cursor-pointer"
+          />
         </div>
       </div>
+
+      {/* Listings Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {listings.map((listing) => {
+          const basePrice = listing.price;
+          const totalPrice = basePrice * (1 + gstRate);
+          const price = includeGST ? totalPrice : basePrice;
+          const gstText = includeGST ? "(incl. GST)" : "(excl. GST)";
+
+          return (
+            <a
+              href={`/listing/${listing._id}`}
+              key={listing._id}
+              className="block transform transition-transform hover:scale-[1.02]"
+            >
+              <div className="bg-white dark:bg-neutral-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow">
+                <img
+                  src={listing.image?.[0]?.url || "/placeholder.jpg"}
+                  alt="listing"
+                  className="h-80 w-full object-cover"
+                />
+                <div className="p-5">
+                  <h4 className="text-xl font-semibold text-rose-500 mb-2">
+                    {listing.title.length > 26
+                      ? listing.title.substring(0, 25) + "..."
+                      : listing.title}
+                  </h4>
+                  <p className="text-gray-700 dark:text-gray-300 mb-2">
+                    <span className="font-medium">
+                      {formatPrice(price)}
+                    </span>{" "}
+                    / night{" "}
+                    <span
+                      className={`ml-1 ${
+                        includeGST
+                          ? "text-red-500"
+                          : "text-gray-500 dark:text-gray-400"
+                      }`}
+                    >
+                      {gstText}
+                    </span>
+                  </p>
+                  <div className="flex justify-between items-center text-gray-600 dark:text-gray-400 mt-3">
+                    <p>
+                      <i className="fa-solid fa-location-crosshairs mr-1"></i>
+                      {listing.location}, {listing.country}
+                    </p>
+                    <p className="flex items-center">
+                      <i className="fa-solid fa-heart text-rose-500 mr-1"></i>
+                      {listing.likes}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
     </div>
-  </div>
+  );
+};
 
-  <div class="row row-cols-1 row-cols-lg-3 row-cols-md-2 row-cols-sm-2 gx-3">
-    <!-- Changed row-col-3 to row-cols-3 and removed row-cols-xs-1 -->
-    <% for (listing of listings) { %>
-      <div class="col popup"> <!-- Added .col to ensure grid layout works -->
-        <a href="/listing/<%= listing._id %>" style="text-decoration: none;">
-        <div class="card listing-card">
-          <img src="<%= listing.image[0].url %>" class="card-img-top" alt="listing_image" />
-          <div class="card-body">
-            <h4 class="card-title">
-              <%= listing.title.length> 26 ? listing.title.substring(0, 25) + '....' : listing.title %>
-            </h4>
-            <p class="mt-3">
-              <span class="price" data-base-price="<%= listing.price %>">
-                <%= listing.price.toLocaleString("en-IN") %>
-              </span> / night
-              <span class="gst-label">(excl. GST)</span>
-            </p>
-            <div class="card-text d-flex justify-content-between">
-              <p class="location"><i class="fa-solid fa-location-crosshairs"></i>&nbsp; <%= listing.location %>, <%= listing.country %></p>
-              <p><i class="fa-solid fa-heart" style="color: #ff385c;"></i> <span class="likes"><%= listing.likes %></span></p>
-            </div>
-          </div>
-        </div>
-        </a>
-      </div> <!-- End of .col -->
-      <% } %>
-  </div>
-
-  <script>
-    //Change the gstRate accordingly
-    const gstRate = 0.18;
-
-    function toggleGST() {
-      const gstToggle = document.getElementById("gstToggle");
-      const priceElements = document.querySelectorAll(".price");
-      const gstLabels = document.querySelectorAll(".gst-label");
-
-      priceElements.forEach((priceElement, index) => {
-        const basePrice = parseFloat(priceElement.getAttribute("data-base-price"));
-        const totalPrice = basePrice * (1 + gstRate);
-
-        if (gstToggle.checked) {
-          // Show GST
-          priceElement.innerText = totalPrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
-          gstLabels[index].innerText = "(incl. GST)";
-          gstLabels[index].classList.add("red-text"); // Add red color
-        } else {
-          // without GST
-          priceElement.innerText = basePrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
-          gstLabels[index].innerText = "(excl. GST)";
-          gstLabels[index].classList.remove("red-text"); // Add red color
-        }
-      });
-    }
-
-    // Initialize with base prices
-    document.addEventListener("DOMContentLoaded", toggleGST);
-  </script>
+export default TopProperties;

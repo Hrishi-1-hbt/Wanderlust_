@@ -1,144 +1,148 @@
-<!-- INCLUDE boilerplate -->
-<% layout("/layouts/admin_boilerplate") %>
+import React from "react";
 
-<style>
-    h1 {
-        text-align: center;
-        font-family: rakkas;
-        font-size: 2em;
-        color: #333;
-        margin-top: 20px;
-    }
+const AdminDashboard = ({ listings = [] }) => {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      {/* Page Title */}
+      <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800 font-serif">
+        Listings Management Dashboard
+      </h1>
 
-    .listing-row {
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        padding: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        background-color: #f9f9f9;
-    }
+      {/* Table Header */}
+      <div className="hidden md:grid grid-cols-10 bg-red-600 text-white p-3 rounded-lg font-semibold">
+        <div className="col-span-2">Title</div>
+        <div className="col-span-2">Description</div>
+        <div>Price</div>
+        <div>Location</div>
+        <div>Country</div>
+        <div>Reviews</div>
+        <div className="col-span-2">Images</div>
+        <div>Tags</div>
+        <div>Actions</div>
+      </div>
 
-    .description-cell {
-        max-height: 200px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .btn {
-        width: 70px;
-        padding: 6px 12px;
-        margin: 3px 0;
-    }
+      {/* Listings */}
+      <div className="mt-4 space-y-4">
+        {listings.map((list) => (
+          <div
+            key={list._id}
+            className="grid md:grid-cols-10 grid-cols-1 gap-3 p-4 border rounded-lg shadow-sm bg-gray-50 hover:shadow-md transition"
+          >
+            {/* Title + Owner */}
+            <div className="col-span-2">
+              <div className="font-bold text-gray-800">{list.title}</div>
+              <div className="text-sm text-rose-600">
+                Owned By:{" "}
+                <b>{list.owner?.username ? list.owner.username : "Unknown"}</b>
+              </div>
+            </div>
 
-        /* Dark Mode Styles */
-        .dark-mode {
-          .listing-row {
-              background-color: #242424;
-              color: #e0e0e0;
-              border-color: #444;
-          }
-          .listing-title, h1 {
-              color: #ffffff;
-          }
-        }
+            {/* Description */}
+            <div className="col-span-2 text-gray-700 line-clamp-4 overflow-hidden text-sm">
+              {list.description}
+            </div>
 
-        /* Responsive Design for Small Screens */
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 1.5em;
-            }
+            {/* Price */}
+            <div className="font-semibold text-gray-800">₹{list.price}</div>
 
-            .listing-row {
-                padding: 10px;
-            }
+            {/* Location */}
+            <div className="italic text-gray-600">{list.location}</div>
 
-            .heading{
-              display: none;
-            }
-             
-            .img-fluid{
-              width: 200px !important;
-              height: 100px !important;
-              object-fit: cover;
-            }
-            
-            .all_btns{
-              display: flex !important;
-            }
+            {/* Country */}
+            <div className="font-semibold text-gray-700">{list.country}</div>
 
-            .all_btns .btn{
-              margin-right: 5px;
-            }
-        }
+            {/* Reviews */}
+            <div>
+              <a
+                href={`/admin/reviews/${list._id}`}
+                className="bg-gray-700 text-white px-3 py-1.5 rounded-md text-sm hover:bg-gray-800 transition"
+              >
+                View
+              </a>
+            </div>
 
-</style>
+            {/* Images */}
+            <div className="col-span-2 flex flex-wrap gap-2">
+              {list.image && list.image.length > 0 ? (
+                list.image.map((img, i) => (
+                  <img
+                    key={i}
+                    src={img.url}
+                    alt={img.filename}
+                    className="w-16 h-16 object-cover rounded-md border"
+                  />
+                ))
+              ) : (
+                <span className="text-gray-500 text-sm">No Images</span>
+              )}
+            </div>
 
-<div class="container">
-    
-    <h1 class="admin">Listings Management Dashboard</h1>
-      <div class="row bg-danger text-white p-2 rounded listing-row heading">
-        <div class="col-2 col-md-2">Title</div>
-        <div class="col-3 col-md-2">Description</div>
-        <div class="col col-md-1">Price</div>
-        <div class="col col-md-1">Location</div>
-        <div class="col col-md-1">Country</div>
-        <div class="col col-md-1">Reviews</div>
-        <div class="col-2 col-md-2">Images</div>
-        <!-- tags -->
-         <div class="col col-md-1">Tags</div>
-        <div class="col col-md-1">Actions</div>
+            {/* Tags */}
+            <div>
+              {list.tags && list.tags.length > 0 ? (
+                list.tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="inline-block bg-blue-600 text-white text-xs font-medium px-2 py-1 rounded-md mr-1 mb-1"
+                  >
+                    {tag}
+                  </span>
+                ))
+              ) : (
+                <span className="bg-gray-400 text-white text-xs px-2 py-1 rounded-md">
+                  No Tags
+                </span>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-2">
+              <form
+                action={`/admin/listing/edit/${list._id}`}
+                method="GET"
+              >
+                <button
+                  type="submit"
+                  className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 text-sm"
+                >
+                  Edit
+                </button>
+              </form>
+
+              <form
+                action={`/admin/listing/${list._id}?_method=DELETE`}
+                method="POST"
+                onSubmit={() =>
+                  confirm("Are you sure you want to delete this listing?")
+                }
+              >
+                <button
+                  type="submit"
+                  className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 text-sm"
+                >
+                  Delete
+                </button>
+              </form>
+
+              <form action={`/admin/listing/${list._id}`} method="GET">
+                <button
+                  type="submit"
+                  className="bg-cyan-500 text-white px-3 py-1 rounded-md hover:bg-cyan-600 text-sm"
+                >
+                  View
+                </button>
+              </form>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Responsive Hint */}
+      <p className="text-center text-gray-400 text-sm mt-8 md:hidden">
+        Scroll horizontally to view full table on mobile
+      </p>
     </div>
-            <% listings.forEach(list => { %> <!-- Use forEach to iterate over listings -->
-              <div class="row border-bottom p-2 listing-row">
-                <% if (list.owner && list.owner.username) { %>
-                  <div class="col-12 col-md-2 listing-title"><%= list.title %> 
-                    <div style="font-size: .8rem; color: #ff385c;">Owned By: <b><%= list.owner.username %></b></div>
-                  </div>
-              <% } else { %>
-                  <div class="col-12 col-md-2 listing-title"><%= list.title %>
-                    <div style="font-size: .8rem; color: #ff385c;"> Owned By: <b>Unknown User</b></div>
-                  </div>
-              <% } %>              
-                <div class="col-12 col-md-2 description-cell"><%= list.description %></div>
-                <div class="col-12 col-md-1"><b><%= list.price %></b></div>
-                <div class="col-12 col-md-1"><i><%= list.location %></i></div>
-                <div class="col-12 col-md-1"><b><%= list.country %></b></div>
-                <div class="col-12 col-md-1">
-                    <a href="/admin/reviews/<%= list._id %>" class="btn btn-secondary btn-sm">View</a>
-                </div>
-                <div class="col-12 col-md-2">
-                    <% list.image.forEach(image => { %>
-                        <img src="<%= image.url %>" alt="<%= image.filename %>" class="img-fluid rounded me-1" style="width: 50px; height: auto;">
-                    <% }) %>
-                </div>
-                <!-- tags -->
-                 <div class="col-12 col-md-1">
-                    <% if (list.tags && list.tags.length>0) { %>
-                      <% list.tags.forEach(tag => { %>
-                        <span class="badge bg-primary me-1"><%= tag %></span>
-                    <% }) %>
-                    <% } else{ %>
-                      <span class="badge bg-secondary me-1">No Tags</span>
-                    <% } %>
-                </div>
-                <div class="col-12 col-md-1  all_btns">
-                        <!-- Edit Form -->
-                        <form action="/admin/listing/edit/<%= list._id %>" method="GET">
-                            <button class="btn btn-outline-primary" type="submit">Edit</button>
-                        </form>
+  );
+};
 
-                        <!-- Delete Form -->
-                        <form action="/admin/listing/<%= list._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Are you sure you want to delete this listing?');">
-                            <button class="btn btn-outline-danger" type="submit">Delete</button>
-                        </form>
-
-                        <!-- New View Profile Button -->
-                      <form action="/admin/listing/<%= list._id %>" method="GET">
-                        <button class="btn btn-outline-info" type="submit">View</button>
-                      </form>
-                    </div>
-                  </div>
-              <% }) %>
-        
-</div>
-
+export default AdminDashboard;

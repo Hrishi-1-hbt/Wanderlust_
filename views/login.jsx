@@ -1,116 +1,121 @@
-<% layout("/layouts/boilerplate") %>
-<br>
-<br>
-<style>
-      .login-con{
-        display: flex;
-        margin-top: 2rem;
-        margin-left: 2rem;
-    }
-    .bg-login{
-        width: 29rem;
-        height: 27rem;
-        transform: translateX(10rem);
-        filter: blur(1px);
-    }
-    .form_body{
-        background-color: #f1f1f1;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 7px 15px rgba(113, 113, 113, 0.626);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .login_form input[type="text"],
-    .login_form input[type="password"] {
-        border-radius: 5px;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
-    }
-    .navigatee{
-        color: #797979;
-    }
-    .navigatee a{
-        color: #ff385c;
-    }
-    /* Form Container - Floating Effect */
-    .dark-mode{
-        .form_body {
-            background-color: #2e2e2e;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5); /* Initial shadow to lift form */
-        }
+import React from "react";
 
-        /* Input Fields Styling */
-        .login_form input[type="text"],
-        .login_form input[type="password"] {
-            background-color: #2c2c2c;
-            color: #ffffff;
-            border: 1px solid #555555;
-            transition: box-shadow 0.3s ease; /* Smooth hover transition for input */
-        }
+function Login({ error }) {
+  return (
+    <html lang="en" className="bg-gray-100">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - Wanderlust</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+        />
+      </head>
+      <body className="flex flex-col items-center justify-center min-h-screen">
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mt-10">
+          <img
+            className="w-96 h-96 object-cover rounded-xl shadow-md opacity-90 blur-[1px]"
+            src="https://private-user-images.githubusercontent.com/157210374/384426294-160a7444-aaf7-49c2-850f-2667eeb2e6f9.png"
+            alt="Login background"
+          />
 
-        .login_form input[type="text"]::placeholder,
-        .login_form input[type="password"]::placeholder {
-            color: #aaaaaa;
-        }
-
-        .login_form input[type="text"],
-        .login_form input[type="password"] {
-            border-radius: 5px;
-            padding: 12px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .login_form label{
-            color: #fff;
-        }
-    }
-</style>
-
-
-<div class="row">
-<div class="login-con">
-     <div>
-        <img class="bg-login" src="https://private-user-images.githubusercontent.com/157210374/384426294-160a7444-aaf7-49c2-850f-2667eeb2e6f9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MzEyMzU1NDUsIm5iZiI6MTczMTIzNTI0NSwicGF0aCI6Ii8xNTcyMTAzNzQvMzg0NDI2Mjk0LTE2MGE3NDQ0LWFhZjctNDljMi04NTBmLTI2NjdlZWIyZTZmOS5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjQxMTEwJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI0MTExMFQxMDQwNDVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT03MDFhMjg2ZDczZWU5NGY0YjEwOTlhN2E0ZTllM2NjOTQ4OTM5NDRmODkxYjczMzI4ODYyMTE3OGE1YzRhYjYwJlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.0uq_3K9lvlAxVF18Wzhw7EOR8G4BBUJ97eWW495LMEw" alt="image">
-    </div>
-    <div class="col-11 col-md-8 col-lg-4 mx-auto form_body">
-        <form method="POST" action="/login" novalidate class="needs-validation">
-            <div class="mb-3 login_form">
-                <label for="username" class="form-label">Username</label>
-                <br>
-                <input type="text" name="username" placeholder="Username" class="form-control" required>
-                
-                <div class="invalid-feedback">
+          <div className="bg-white dark:bg-neutral-800 shadow-xl rounded-2xl p-8 w-96 transition-transform duration-300 hover:scale-[1.02]">
+            <form
+              method="POST"
+              action="/login"
+              noValidate
+              className="flex flex-col gap-6"
+            >
+              <div>
+                <label
+                  htmlFor="username"
+                  className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
+                >
+                  Username
+                </label>
+                <input
+                  type="text"
+                  name="username"
+                  id="username"
+                  placeholder="Enter your username"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 outline-none dark:bg-neutral-700 dark:text-white"
+                  required
+                />
+                {error === "username" && (
+                  <p className="text-red-500 text-sm mt-1">
                     Username not found
-               </div>
-            </div>
-            <div class="mb-3 login_form">
-                <label for="password" class="form-label">Password</label>
-                <br>
-                <div class="password-box">
-                    <input type="password" name="password" placeholder="Password"  class="form-control" required>
-                    <i id="togglePassword" class="passkey passwordToggler fa fa-eye"></i> 
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    name="password"
+                    id="password"
+                    placeholder="Enter your password"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-400 outline-none dark:bg-neutral-700 dark:text-white"
+                    required
+                  />
+                  <i
+                    id="togglePassword"
+                    className="fa fa-eye absolute right-3 top-3 text-gray-500 cursor-pointer"
+                  ></i>
                 </div>
-                <div class="mt-2">
-                    <a href="/forgot-password" style="text-decoration: none; color:'black">Forgot Password ?</a>
+                <div className="mt-2 text-right">
+                  <a
+                    href="/forgot-password"
+                    className="text-sm text-rose-500 hover:underline"
+                  >
+                    Forgot Password?
+                  </a>
                 </div>
-               <div class="invalid-feedback">
-                   Password not found
+                {error === "password" && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Password not found
+                  </p>
+                )}
               </div>
-              <br>
-              <div class="d-grid gap-2">
-                <button class="btn btn-danger" name="saveButton" type="submit">LOG IN</button>
-                <a href="/listing" class="btn btn-secondary" type="button">Go back</a>
+
+              <div className="flex flex-col gap-3 mt-4">
+                <button
+                  type="submit"
+                  className="bg-rose-500 hover:bg-rose-600 text-white font-semibold py-2 rounded-lg shadow-md transition"
+                >
+                  LOG IN
+                </button>
+                <a
+                  href="/listing"
+                  className="text-center bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 rounded-lg transition"
+                >
+                  Go Back
+                </a>
               </div>
-              <div class="mt-2 text-center navigatee">
-                Don't have an account? <a href="/signup">Register</a>
-              </div>
-            </div>
-        </form>
-        
-    </div>
-</div>
-</div>
+
+              <p className="text-center text-gray-600 dark:text-gray-300 mt-3">
+                Don’t have an account?{" "}
+                <a
+                  href="/signup"
+                  className="text-rose-500 font-semibold hover:underline"
+                >
+                  Register
+                </a>
+              </p>
+            </form>
+          </div>
+        </div>
+      </body>
+    </html>
+  );
+}
+
+export default Login;

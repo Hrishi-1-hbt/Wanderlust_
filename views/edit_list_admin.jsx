@@ -1,158 +1,199 @@
-<!-- INCLUDE boilerplate -->
-<% layout("/layouts/admin_boilerplate") %>
+import React, { useState, useEffect } from "react";
 
-    <style>
-        .all_btns{
-            display: flex !important;
-            justify-content: center;
-        }
-        .all_btns .btn{
-            margin-left: 5px;
-            margin-right: 5px;
-        }
+export default function EditListing({ list, tags, onSubmit }) {
+  const [form, setForm] = useState({
+    title: list?.title || "",
+    description: list?.description || "",
+    price: list?.price || "",
+    location: list?.location || "",
+    country: list?.country || "",
+    images: [],
+    tags: list?.tags || [],
+  });
 
-    .dark-mode{
-         
-            h3,  .form-label, .form-text {
-                color: #f1f1f1;
-            }
-            .form-control {
-                background-color: #333;
-                color: #e0e0e0;
-                border: 1px solid #555;
-            }
-            .form-control::placeholder {
-                color: #888;
-            }
-            .form-control:focus {
-                background-color: #444;
-                border-color: #888;
-                color: #fff;
-            }
-            .edit_form input[type="file"] {
-                background-color: inherit;
-                color: #e0e0e0;
-                border: 1px solid #555;
-            }
-            .edit_form .valid-feedback, .edit_form .invalid-feedback {
-                color: #a0a0a0;
-            }
-        }
-    </style>
+  const maxTags = 3;
 
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-    <!-- EDIT lISTING -->
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-12 col-md-10 col-lg-8 mx-auto form_body">
-            <h3 class="text-center" style="font-family: rakkas;">Edit Property details</h3>
-            <form method="POST" action="/admin/listing/edit/<%= list._id %>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
-                <div class="mb-3 edit_form">
-                    <label for="title" class="form-label">Title</label>
-                    <input name="listing[title]" class="form-control" value="<%= list.title %>" required>
-                    <div class="valid-feedback">Looks good!</div>
-                    <div class="invalid-feedback">Please enter a valid title!</div>
-                </div>
+  const handleFileChange = (e) => {
+    setForm({ ...form, images: [...e.target.files] });
+  };
 
-                <div class="mb-3 edit_form">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea name="listing[description]" class="form-control" rows="5" required><%= list.description %></textarea>
-                    <div class="valid-feedback">Looks good!</div>
-                    <div class="invalid-feedback">Please enter a valid description!</div>
-                </div>
-
-                <div class="mb-3 edit_form">
-                    <% list.image.forEach(image => { %>
-                        <img src="<%= image.url %>" alt="listing_image" style="height: 8rem; width: auto; margin-right: 10px;" />
-                    <% }); %>
-                    <br><small class="form-text text-muted">Images preview that already uploaded.</small>
-                </div>
-
-                <div class="mb-3 edit_form">
-                    <label for="images" class="form-label">Upload New Images</label>
-                    <input type="file" name="listing[image]" class="form-control" accept="image/*" multiple>
-                    <small class="form-text text-muted">You can upload multiple images.</small>
-                </div>
-                <div class="row">
-
-                    <div class="mb-3 col-3 edit_form">
-                        <label for="price" class="form-label">Price (&#8377;)</label>
-                        <input name="listing[price]" type="number" class="form-control" value="<%= list.price %>" required>
-                        <div class="valid-feedback">Looks good!</div>
-                        <div class="invalid-feedback">Please enter a valid price!</div>
-                    </div>
-
-                    <div class="mb-3 col-5 edit_form">
-                        <label for="location" class="form-label">Location</label>
-                        <input name="listing[location]" class="form-control" value="<%= list.location %>" required>
-                        <div class="valid-feedback">Looks good!</div>
-                        <div class="invalid-feedback">Please enter a valid location!</div>
-                    </div>
-
-                    <div class="mb-3 col-4 edit_form">
-                        <label for="country" class="form-label">Country</label>
-                        <input name="listing[country]" class="form-control" value="<%= list.country %>" required>
-                        <div class="valid-feedback">Looks good!</div>
-                        <div class="invalid-feedback">Please enter a valid country!</div>
-                    </div>
-
-                </div>
-                <!-- Tags section -->
-                <div class="mb-3 listing_form">
-                    <label for="tags" class="form-label"><b>Tags</b></label>
-                    <div>
-                        <% if (list.tags && list.tags.length > 0) { %>
-                            <% list.tags.forEach(tag => { %>
-                                <span class="badge bg-primary"><%= tag %></span>
-                            <% }); %>
-                        <% } else { %>
-                            <p style="color: red;">No tags found.</p>
-                        <% } %>
-                    </div>
-                    <br>
-                    <% tags.forEach(tag => { %>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input tag-checkbox" type="checkbox" name="listing[tags]" id="tag<%= tag %>" value="<%= tag %>">
-                            <label class="form-check-label" for="tag<%= tag %>"><%= tag %></label>
-                        </div>
-                    <% }) %>
-                </div>
-                <small class="form-text tag-alert">Maximum 3 tags are allowed!</small>
-                <div class="all_btns">
-                    <button type="submit" class="btn btn-primary">Update Listing</button>
-                    <a href="/admin/dashboard" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
-            <br><br><br><br>
-        </div>
-    </div>
-    </div>
-
-
-<script>
-    // Set limit of three to add tags for list
-const checkboxes = document.querySelectorAll('.tag-checkbox');
-const tagAlert = document.querySelector('.tag-alert');
-    const maxAllowed = 3;
-
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-            // Count the number of checked boxes
-            const checkedCount = document.querySelectorAll('.tag-checkbox:checked').length;
-
-            if (checkedCount > maxAllowed) {
-                // Uncheck the current checkbox if the limit is reached
-                checkbox.checked = false;
-                // alert(`You can select up to ${maxAllowed} tags only.`);
-                tagAlert.classList.remove("normal-tag-alert");
-                tagAlert.classList.add("red-tag-alert");
-            } else {
-                // Hide the alert message if under the limit
-                tagAlert.classList.remove("red-tag-alert");
-                tagAlert.classList.add("normal-tag-alert");
-            }
-        });
+  const handleTagToggle = (tag) => {
+    setForm((prev) => {
+      const hasTag = prev.tags.includes(tag);
+      if (!hasTag && prev.tags.length >= maxTags) return prev; // limit 3
+      return {
+        ...prev,
+        tags: hasTag ? prev.tags.filter((t) => t !== tag) : [...prev.tags, tag],
+      };
     });
+  };
 
+  const submitHandler = (e) => {
+    e.preventDefault();
+    if (onSubmit) onSubmit(form);
+  };
 
-</script>
+  return (
+    <div className="container mx-auto max-w-3xl py-10">
+      <h3 className="text-3xl font-rakkas text-center mb-6 text-gray-800 dark:text-gray-100">
+        Edit Property Details
+      </h3>
+
+      <form
+        onSubmit={submitHandler}
+        className="bg-white dark:bg-gray-900 shadow-xl rounded-2xl p-6 space-y-5"
+        encType="multipart/form-data"
+      >
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Title
+          </label>
+          <input
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+            className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 p-2"
+          />
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Description
+          </label>
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            rows="4"
+            required
+            className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-indigo-500 p-2"
+          ></textarea>
+        </div>
+
+        {/* Existing Images */}
+        <div>
+          <p className="text-sm text-gray-600 dark:text-gray-300 mb-1">
+            Existing Images
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {list?.image?.map((img, idx) => (
+              <img
+                key={idx}
+                src={img.url}
+                alt={img.filename}
+                className="h-24 w-24 object-cover rounded-lg border border-gray-300"
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Upload new images */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+            Upload New Images
+          </label>
+          <input
+            type="file"
+            multiple
+            onChange={handleFileChange}
+            accept="image/*"
+            className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 p-2"
+          />
+        </div>
+
+        {/* Price, Location, Country */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Price (₹)
+            </label>
+            <input
+              type="number"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 p-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Location
+            </label>
+            <input
+              name="location"
+              value={form.location}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 p-2"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+              Country
+            </label>
+            <input
+              name="country"
+              value={form.country}
+              onChange={handleChange}
+              required
+              className="w-full rounded-lg border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 p-2"
+            />
+          </div>
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
+            Tags (max 3)
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {tags.map((tag) => (
+              <label key={tag} className="flex items-center space-x-1">
+                <input
+                  type="checkbox"
+                  checked={form.tags.includes(tag)}
+                  onChange={() => handleTagToggle(tag)}
+                  className="form-checkbox h-4 w-4 text-indigo-600 rounded focus:ring-indigo-500"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-200">
+                  {tag}
+                </span>
+              </label>
+            ))}
+          </div>
+          {form.tags.length >= maxTags && (
+            <p className="text-sm text-red-500 mt-1">
+              Maximum 3 tags are allowed
+            </p>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-center gap-4 pt-4">
+          <button
+            type="submit"
+            className="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+          >
+            Update Listing
+          </button>
+          <a
+            href="/admin/dashboard"
+            className="px-5 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold"
+          >
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  );
+}

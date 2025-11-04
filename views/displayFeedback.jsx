@@ -1,89 +1,65 @@
-<% layout("/layouts/boilerplate") %>
-<style>
-    .feedback-star{
-        font-size: 1.5rem;
-        color: #f5bd23;
-        cursor: pointer;
-        /* box-shadow: 0 5px 10px #000000b5; */
-        transition: all 0.1s ease;
-    }
-    .feedback-star:hover{
-        transform: scale(1.2) translateY(-0.25rem) !important;
-    }
-    .feed-comment{
-        font-weight: 500 !important;
-        font-family: Arial, Helvetica, sans-serif !important;
-    }
-    .feed-name{
-        font-weight: 300 !important;
-        opacity: 0.7 !important;
-        font-size: 1rem;
-        color: #ff385c;
-        font-family: cursive !important;
-    }
-    .date{
-        font-weight: 200 !important;
-        font-size: 0.8rem;
-    }
-    .dark-mode{
-        h3{
-            color: aliceblue;
-        }
-        .date{
-            color: #a7a7a7 !important;
-        }
-        .feed-comment{
-            opacity: 0.8;
-        }
-    }
-</style>
+import React from "react";
 
+export default function Feedback({ feedbacks = [] }) {
+  return (
+    <div className="container mx-auto px-4 py-10">
+      {/* Title */}
+      <h3 className="text-center text-3xl font-semibold text-gray-800 dark:text-gray-100 mb-10">
+        <span role="img" aria-label="sparkle" className="inline-block mx-2">
+          ✨
+        </span>
+        Valuable Feedbacks by Our Users
+        <span role="img" aria-label="sparkle" className="inline-block mx-2">
+          ✨
+        </span>
+      </h3>
 
+      {/* Feedback Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {feedbacks.map((feedback) => (
+          <div
+            key={feedback._id}
+            className="bg-white dark:bg-gray-800 shadow-md rounded-xl p-6 hover:-translate-y-1 transition-transform duration-200"
+          >
+            {/* Rating Stars */}
+            <div className="flex justify-center mb-4">
+              {[1, 2, 3, 4, 5].map((j) =>
+                j <= feedback.rating ? (
+                  <i
+                    key={j}
+                    className="fa-solid fa-star text-yellow-400 text-xl mx-1 transition-transform hover:scale-125"
+                  ></i>
+                ) : (
+                  <i
+                    key={j}
+                    className="fa-regular fa-star text-yellow-400 text-xl mx-1 transition-transform hover:scale-125"
+                  ></i>
+                )
+              )}
+            </div>
 
-<body>
-    <div class="container">
-        <h3 class="mt-5 text-center">
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" alt="✨" width="42" height="42"> 
-            Valuable Feedbacks by Our Users 
-            <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" alt="✨" width="42" height="42">
-        </h3>
-        <div class="row row-cols-1 row-cols-sm-1 row-cols-md-2 row-cols-lg-3 g-3 mt-5">
-            <% for (let feedback of feedbacks) { %>
-                <div class="col">
-                    <div class="card listing-card h-100" id="feedback-<%= feedback._id %>">
-                        <div class="card-body">
-                            <p class="card-text mt-2 text-center mb-3">
-                                <% for (let j = 1; j <= 5; j++) { %>
-                                    <% if (j <= feedback.rating) { %>
-                                        <i class="fa-solid fa-star feedback-star"></i>
-                                    <% } else { %>
-                                        <i class="fa-regular fa-star feedback-star"></i>
-                                    <% } %>
-                                <% } %>
-                            </p>
-                            <p class="card-text">
-                                <span class="feed-comment"><%= feedback.comment %></span><br>
-                            </p>
-                        </div>
-                        <div class="card-text d-flex justify-content-between">
-                            <span class="text-muted date">
-                                <small>
-                                    <%= new Date(feedback.submittedAt).toLocaleDateString("en-IN", {
-                                        weekday: "short",
-                                        year: "numeric",
-                                        month: "short",
-                                        day: "numeric"
-                                    }) %>
-                                </small>
-                            </span>
-                            <span>
-                                <small class=" feed-name">- By <%= feedback.name %></small>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            <% } %>
-        </div>
+            {/* Comment */}
+            <p className="text-gray-700 dark:text-gray-300 text-center font-medium italic mb-3">
+              “{feedback.comment}”
+            </p>
+
+            {/* Footer */}
+            <div className="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400">
+              <span>
+                {new Date(feedback.submittedAt).toLocaleDateString("en-IN", {
+                  weekday: "short",
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </span>
+              <span className="text-red-500 font-semibold font-serif">
+                - {feedback.name}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-</body>
-
+  );
+}

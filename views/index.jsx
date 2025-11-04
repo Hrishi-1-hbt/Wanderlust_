@@ -1,346 +1,185 @@
-<% layout("/layouts/boilerplate") %>
-<style>
-  .listing-card{
-        min-height: fit-content !important;
-        /* padding-bottom: 1rem !important; */
-  }
-  .popup{
-    transition: transform 0.3s ease;
-  }
-  .popup:hover{
-    /* transform: translateY(-0.2rem); */
-    transform: scale(1.01) translateY(-0.1rem);
-  }
-  .card-img-top{
-    height: 20rem !important;
-  }
-  .show_btn{
-    margin-bottom: 0 !important;
-  }
-  .card-body{
-    /* padding-bottom: 0.2 !important; */
-    height: fit-content !important;
-    /* max-height: auto; */
-  }
-  .faq-left{
-    padding-left: 2rem;
-  }
-  .contact-info a{
-    color: #999;
-    font-size: 1.1rem !important;
-    font-weight: 400 !important;
-  }
-   /* Styling for GST toggle */
-  .tax-toggler-container {
-    display: flex;
-    justify-content: flex-end;
-  }
-  .tax-toggler {
-    box-shadow: 1px 2px 8px rgba(0, 0, 0, 0.2); 
-    width: 250px;
-    position: relative;
-    right: 1rem; 
-    padding: 10px 14px;
-    border-radius: 8px;
-    z-index: 10;
-  }
-  .tax-toggler label {
-    font-size: 15px;
-    margin-left: 5px;
-    cursor: pointer;
-    padding-right: 5px;
-  }
-  .red-text {
-    color: #ff385c;
-  }
-  .normal-text{
-    color: #858585d7;
-  }
-  #gstToggle{
-    font-size: 1.2rem;
-    position: relative;
-    bottom: 2px;
-  }
-  .list-title{
-    color: #ff385c;
-  }
-  .pppp .price,
-  .pppp .nightt{
-    color: rgb(65, 65, 65);
-  }
-  .likes{
-    color: rgb(65, 65, 65);
-  }
-  .listcardbody{
-    padding-bottom: 0 !important;
-  }
-  .dark-mode{
-    .price{
-      color: #f3f3f3;
-    }
-    .nightt{
-      color: #c2c2c2;
-    }
-    .likes{
-      color: #d5d5d5;
-    }
-  }
-</style>
-<body>
-    <div class="scrollBar">
-      <!-- Scroll Buttons -->
-      <button class="scroll-btn left" onclick="leftScroll()">
-        <i class="fas fa-angle-double-left"></i>
-      </button>
-  
-      <div id="filters">
-        
-      <!-- TAGS -->
-      <% const tags = [
-        { name: "Trending", icon: "fa-fire" },
-        { name: "Surfing", icon: "fa-water" },
-        { name: "Amazing cities", icon: "fa-city" },
-        { name: "Beach", icon: "fa-umbrella" },
-        { name: "Farms", icon: "fa-cow" },
-        { name: "Lake", icon: "fa-mountain" },
-        { name: "Castles", icon: "fa-fort-awesome" },
-        { name: "Rooms", icon: "fa-bed" },
-        { name: "Forest", icon: "fa-tree" },
-        { name: "Pool", icon: "fa-person-swimming" }
-      ]; %>
-        <% tags.forEach(tag => { %>
-          <div class="filter">
-            <a style="text-decoration: none;" href="/listing?tag=<%= encodeURIComponent(tag.name) %>" class="filter-link">
-              <div><i class="fa-solid <%= tag.icon %>"></i></div>
-              <p><%= tag.name %></p>
+// views/Listings.jsx
+const React = require("react");
+
+function Listings({ listings = [] }) {
+  const tags = [
+    { name: "Trending", icon: "fa-fire" },
+    { name: "Surfing", icon: "fa-water" },
+    { name: "Amazing cities", icon: "fa-city" },
+    { name: "Beach", icon: "fa-umbrella" },
+    { name: "Farms", icon: "fa-cow" },
+    { name: "Lake", icon: "fa-mountain" },
+    { name: "Castles", icon: "fa-fort-awesome" },
+    { name: "Rooms", icon: "fa-bed" },
+    { name: "Forest", icon: "fa-tree" },
+    { name: "Pool", icon: "fa-person-swimming" },
+  ];
+
+  return (
+    <html>
+      <head>
+        <title>Wanderlust Listings</title>
+        <link
+          href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+          rel="stylesheet"
+        />
+        <link
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+          rel="stylesheet"
+        />
+      </head>
+
+      <body className="bg-gray-50 text-gray-800">
+        {/* TAG SCROLL BAR */}
+        <div className="relative flex items-center justify-center gap-4 p-4 overflow-x-auto bg-white shadow-sm rounded-xl">
+          {tags.map((tag, idx) => (
+            <a
+              key={idx}
+              href={`/listing?tag=${encodeURIComponent(tag.name)}`}
+              className="flex flex-col items-center text-gray-600 hover:text-pink-600 transition"
+            >
+              <i className={`fa-solid ${tag.icon} text-2xl`}></i>
+              <p className="text-sm mt-1">{tag.name}</p>
             </a>
-          </div>
-        <% }) %>
-      </div>
-    <button class="scroll-btn right" onclick="rightScroll()">
-      <i class="fas fa-angle-double-right"></i>
-    </button>
-    </div>
-
-    <!-- LISTINGS -->
-  <br>
-
-  <!-- Listings -->
-  <div class="container">
-    <!-- toogler -->
-    <div class="tax-toggler-container">
-      <div class="tax-toggler">
-        <div class="form-check-reverse form-switch">
-          <input type="checkbox" role="switch" class="form-check-input" id="gstToggle" onclick="toggleGST()">
-          <label for="gstToggle" class="form-check-label">Display total after taxes</label>
+          ))}
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Listings -->
-  <div class="container my-4">
-    <div class="row row-cols-1 row-cols-lg-3 row-cols-md-2 row-cols-sm-2 gx-3"> <!-- Changed row-col-3 to row-cols-3 and removed row-cols-xs-1 -->
-      <% for (listing of listings) { %>
-        <div class="col popup"> <!-- Added .col to ensure grid layout works -->
-          <a href="/listing/<%= listing._id %>" style="text-decoration: none;">
-          <div class="card listing-card">
-            <% if (listing.image && listing.image.length > 0) { %>
-                  <img src="<%= listing.image[0].url %>" class="card-img-top" alt="listing_image" />
-            <% } %>           
-            <div class="card-body listcardbody">
-              <h4 class="card-title list-title notranslate">
-                <%= listing.title.length > 26 ? listing.title.substring(0, 25) + '....' : listing.title %>
-              </h4>    
-              <p class="mt-3 pppp">
-                <span class="price" data-base-price="<%= listing.price %>"><%= listing.price.toLocaleString("en-IN") %></span> 
-                <span class="nightt">/ night</span> 
-                <span class="gst-label">(excl. GST)</span>
-              </p>
-              
-              <div class="card-text d-flex justify-content-between">
-                <p class="location"><i class="fa-solid fa-location-crosshairs"></i>&nbsp; <%= listing.location %>, <%= listing.country %></p>
-                <p><i class="fa-solid fa-heart" style="color: #ff385c;"></i> <span class="likes"><%= listing.likes %></span></p>
-              </div>
-            </div>
+        {/* GST Toggle */}
+        <div className="flex justify-end pr-10 mt-6">
+          <div className="flex items-center gap-2 shadow px-4 py-2 bg-white rounded-lg">
+            <input
+              id="gstToggle"
+              type="checkbox"
+              className="h-5 w-5 text-pink-500"
+              onChange="toggleGST()"
+            />
+            <label htmlFor="gstToggle" className="text-gray-700 text-sm">
+              Display total after taxes
+            </label>
           </div>
-        </a>
-        </div> <!-- End of .col -->
-      <% } %>
-    </div>
-    
-  </div>
+        </div>
 
-  </div>
+        {/* LISTINGS */}
+        <div className="container mx-auto px-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {listings.map((listing) => (
+              <a
+                href={`/listing/${listing._id}`}
+                key={listing._id}
+                className="block hover:scale-[1.02] transition-transform"
+              >
+                <div className="bg-white rounded-xl shadow hover:shadow-lg overflow-hidden">
+                  {listing.image && listing.image.length > 0 && (
+                    <img
+                      src={listing.image[0].url}
+                      alt="listing"
+                      className="w-full h-64 object-cover"
+                    />
+                  )}
 
-<!-- FAQ SECTION -->
-<div class="faq-container container" id="faq">
-  <div class="faq-left">
-    <h2>Frequently Asked Questions</h2>
-    <p>Your travel-related queries, answered to ensure a smooth journey! 
-     
-      <img src="https://fonts.gstatic.com/s/e/notoemoji/latest/2728/512.gif" alt="✨" width="28" height="28"></p>
-    <div class="contact-info">
-      <span><i class="fas fa-envelope"></i> Got any questions?</span>
-      <a href="mailto:support@wanderlust.com">support@wanderlust.com</a>
-    </div>
-  </div>
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-pink-600">
+                      {listing.title.length > 26
+                        ? listing.title.substring(0, 25) + "..."
+                        : listing.title}
+                    </h3>
 
-  <!-- RIGHT SIDE -->
-  <div class="faq-right" id="faq-list">
-    <!-- FAQs dynamically added -->
-    <div class="faq-item">
-      <h3>How can I find new travel destinations? <i class="fas fa-chevron-down"></i></h3>
-      <div class="faq-answer ">
-        <p>wanderlust provides an interactive map 🗺️ that lets you explore popular and hidden destinations around the world. You can also browse user-generated travel stories ✍️ for inspiration.</p>
-      </div>
-    </div>
+                    <p className="mt-3 text-gray-800 font-medium">
+                      <span className="price" data-base-price={listing.price}>
+                        ₹{listing.price.toLocaleString("en-IN")}
+                      </span>
+                      <span className="text-gray-500 ml-1">/ night</span>
+                      <span className="ml-1 text-gray-400 gst-label">
+                        (excl. GST)
+                      </span>
+                    </p>
 
-    <div class="faq-item">
-      <h3>Can I contribute my own travel experiences? <i class="fas fa-chevron-down"></i></h3>
-      <div class="faq-answer">
-        <p>Yes! Create your own travel stories and share tips, photos, and experiences with the Wanderlust community. Your unique insights will help others discover new adventures! ✈️</p>
-      </div>
-    </div>
+                    <div className="flex justify-between text-gray-600 mt-2 text-sm">
+                      <span>
+                        <i className="fa-solid fa-location-crosshairs"></i>{" "}
+                        {listing.location}, {listing.country}
+                      </span>
+                      <span>
+                        <i className="fa-solid fa-heart text-pink-500"></i>{" "}
+                        {listing.likes}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
 
-    <div class="faq-item">
-      <h3>How do I use the map to plan my trips? <i class="fas fa-chevron-down"></i></h3>
-      <div class="faq-answer">
-        <p>Our integrated map feature allows you to view nearby attractions, accommodations, and local experiences, making trip planning seamless. Just zoom in and start exploring! 🗺️</p>
-      </div>
-    </div>
+        {/* FAQ SECTION */}
+        <div className="container mx-auto mt-16 px-6">
+          <h2 className="text-2xl font-bold mb-4">Frequently Asked Questions</h2>
+          <p className="mb-6 text-gray-600">
+            Your travel-related queries, answered to ensure a smooth journey! ✨
+          </p>
 
-    <div class="faq-item">
-      <h3>Is my personal information safe with Wanderlust ? <i class="fas fa-chevron-down"></i></h3>
-      <div class="faq-answer">
-        <p>Absolutely. We prioritize the security and privacy of your data with industry-standard security protocols. Your information is safe with us. 🔐</p>
-      </div>
-    </div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "How can I find new travel destinations?",
+                a: "Wanderlust provides an interactive map 🗺️ that lets you explore popular and hidden destinations worldwide.",
+              },
+              {
+                q: "Can I contribute my own travel experiences?",
+                a: "Yes! Create your own travel stories and share them with the Wanderlust community. ✈️",
+              },
+              {
+                q: "How do I use the map to plan my trips?",
+                a: "Our map feature allows you to view attractions, accommodations, and local experiences easily.",
+              },
+              {
+                q: "Is my personal information safe with Wanderlust?",
+                a: "Absolutely. We use industry-standard security protocols to protect your data. 🔐",
+              },
+              {
+                q: "How do I sign up for Wanderlust?",
+                a: "Just visit the registration page, enter your details, and start exploring! 🌟",
+              },
+            ].map((faq, idx) => (
+              <details key={idx} className="bg-white p-4 rounded-lg shadow-sm">
+                <summary className="font-medium text-gray-800 cursor-pointer">
+                  {faq.q}
+                </summary>
+                <p className="mt-2 text-gray-600">{faq.a}</p>
+              </details>
+            ))}
+          </div>
+        </div>
 
-    <div class="faq-item">
-      <h3>How do I sign up for Wanderlust? <i class="fas fa-chevron-down"></i></h3>
-      <div class="faq-answer">
-        <p>Signing up is easy! Just visit the registration page, enter your details, and start your journey toward discovering and sharing amazing destinations. 🌟</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- GST CALCULATE -->
-
-<script>
-  //Change the gstRate accordingly
-const gstRate = 0.18;
-
-function toggleGST() {
-  const gstToggle = document.getElementById("gstToggle");
-  const priceElements = document.querySelectorAll(".price");
-  const gstLabels = document.querySelectorAll(".gst-label");
-
-  priceElements.forEach((priceElement, index) => {
-    const basePrice = parseFloat(priceElement.getAttribute("data-base-price"));
-    const totalPrice = basePrice * (1 + gstRate);
-
-    if (gstToggle.checked) {
-      // Show GST
-      priceElement.innerText = totalPrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
-      gstLabels[index].innerText = "(incl. GST)";
-      gstLabels[index].classList.remove("normal-text"); // Add red color
-      gstLabels[index].classList.add("red-text"); // Add red color
-    } else {
-      // without GST
-      priceElement.innerText = basePrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
-      gstLabels[index].innerText = "(excl. GST)";
-      gstLabels[index].classList.remove("red-text"); // Add red color
-      gstLabels[index].classList.add("normal-text"); // Add red color
-    }
-  });
+        {/* GST Script */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              const gstRate = 0.18;
+              function toggleGST() {
+                const gstToggle = document.getElementById("gstToggle");
+                const priceElements = document.querySelectorAll(".price");
+                const gstLabels = document.querySelectorAll(".gst-label");
+                priceElements.forEach((priceElement, index) => {
+                  const basePrice = parseFloat(priceElement.getAttribute("data-base-price"));
+                  const totalPrice = basePrice * (1 + gstRate);
+                  if (gstToggle.checked) {
+                    priceElement.innerText = totalPrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
+                    gstLabels[index].innerText = "(incl. GST)";
+                    gstLabels[index].classList.add("text-pink-600");
+                  } else {
+                    priceElement.innerText = basePrice.toLocaleString("en-IN", { style: "currency", currency: "INR" });
+                    gstLabels[index].innerText = "(excl. GST)";
+                    gstLabels[index].classList.remove("text-pink-600");
+                  }
+                });
+              }
+            `,
+          }}
+        ></script>
+      </body>
+    </html>
+  );
 }
 
-// Initialize with base prices
-document.addEventListener("DOMContentLoaded", toggleGST);
-</script>
-
-<script>
-  const filters = document.getElementById('filters');
-  const leftButton = document.querySelector('.left');
-  const rightButton = document.querySelector(".right");
-
-  function scrollLeft() {
-    filters.scrollBy({
-      left: -200,  // Scroll left by 200px
-      behavior: 'smooth'
-    });
-  }
-
-  function scrollRight() {
-    filters.scrollBy({
-      left: 200,  // Scroll right by 200px
-      behavior: 'smooth'
-    });
-  }
-
-leftButton.addEventListener('click',scrollLeft);
-rightButton.addEventListener('click',scrollRight);
-
-</script>
-
-<!-- FILLTERS -->
-<script>
-  document.querySelectorAll('.faq-item').forEach(item => {
-    item.addEventListener('click', () => {
-        const faqAnswer = item.querySelector('.faq-answer');
-
-        // Toggle current FAQ item
-        item.classList.toggle('open');
-
-        // If it's open, expand; otherwise, collapse
-        if (item.classList.contains('open')) {
-            faqAnswer.style.maxHeight = faqAnswer.scrollHeight + "px";
-        } else {
-            faqAnswer.style.maxHeight = 0;
-        }
-
-        // Hide other FAQ answers
-        document.querySelectorAll('.faq-item').forEach(otherItem => {
-            if (otherItem !== item && otherItem.classList.contains('open')) {
-                otherItem.classList.remove('open');
-                otherItem.querySelector('.faq-answer').style.maxHeight = 0;
-            }
-        });
-    });
-});
-</script>
-
-
-<!-- FILLTERS -->
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const toggleDescriptionLinks = document.querySelectorAll('.toggle-description');
-    
-    toggleDescriptionLinks.forEach(link => {
-      link.addEventListener('click', function () {
-        const cardBody = this.closest('.card-body');
-        const shortDescription = cardBody.querySelector('.short-description');
-        const fullDescription = cardBody.querySelector('.full-description');
-        
-        // Toggle between short and full descriptions
-        if (fullDescription.classList.contains('d-none')) {
-          fullDescription.classList.remove('d-none');
-          shortDescription.classList.add('d-none');
-          this.textContent = "Show less";
-        } else {
-          fullDescription.classList.add('d-none');
-          shortDescription.classList.remove('d-none');
-          this.textContent = "Show more";
-        }
-      });
-    });
-  });
-</script>
-
-
-</body>
-
-
-
+module.exports = Listings;

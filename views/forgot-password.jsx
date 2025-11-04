@@ -1,95 +1,96 @@
-<% layout("/layouts/boilerplate") %>
-<br>
-<br>
-<style>
-    
-    .form_body{
-        background-color: #f1f1f1;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 7px 15px rgba(113, 113, 113, 0.626);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+const ResetPassword = () => {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState({ type: "", text: "" });
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email) {
+      setMessage({ type: "error", text: "Please enter your registered email." });
+      return;
     }
-    .login_form input[type="text"],
-    .login_form input[type="password"] {
-        border-radius: 5px;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
+
+    try {
+      const res = await fetch("/resetlink-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      if (res.ok) {
+        setMessage({
+          type: "success",
+          text: "Reset link has been sent to your registered email!",
+        });
+      } else {
+        setMessage({ type: "error", text: "Email not found. Please try again." });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Server error. Please try again later." });
     }
-    /* Form Container - Floating Effect */
-    .dark-mode{
-        .form_body {
-            background-color: #2e2e2e;
-            border-radius: 8px;
-            padding: 30px;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5); /* Initial shadow to lift form */
-        }
+  };
 
-        /* Input Fields Styling */
-        .login_form input[type="text"],
-        .login_form input[type="password"] {
-            background-color: #2c2c2c;
-            color: #ffffff;
-            border: 1px solid #555555;
-            transition: box-shadow 0.3s ease; /* Smooth hover transition for input */
-        }
+  return (
+    <div className="flex justify-center items-center h-screen bg-gray-100 dark:bg-gray-900 transition">
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 shadow-lg rounded-xl p-8">
+        <h2 className="text-center text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+          Reset Password
+        </h2>
 
-        .login_form input[type="text"]::placeholder,
-        .login_form input[type="password"]::placeholder {
-            color: #aaaaaa;
-        }
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-gray-800 dark:text-gray-200 mb-2 font-medium"
+            >
+              Registered Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              placeholder="Enter registered email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 transition"
+            />
+          </div>
 
-        .login_form input[type="text"],
-        .login_form input[type="password"] {
-            border-radius: 5px;
-            padding: 12px;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .login_form label{
-            color: #fff;
-        }
-        #message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    
-        .success {
-            background-color: #d4edda; /* Light green */
-            color: #155724; /* Dark green */
-        }
-    
-        .error {
-            background-color: #f8d7da; /* Light red */
-            color: #ff385c; /* Dark red */
-        }
-    }
-</style>
-
-
-<div class="row">
-    <!-- <div class="col-4 mx-auto form_body"> -->
-    <div class="col-11 col-md-8 col-lg-4 mx-auto form_body">
-        <form method="POST" action="/resetlink-password" novalidate class="needs-validation">
-            <div class="mb-3 login_form">
-                <label for="username" class="form-label">Registered Email</label>
-                <br>
-                <input type="text" name="email" placeholder="Enter Registered Email Id" class="form-control" required>
-                
-                <div class="invalid-feedback">
-                    Email not found
-               </div>
+          {message.text && (
+            <div
+              className={`p-3 rounded-md text-sm ${
+                message.type === "success"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {message.text}
             </div>
-              <br>
-              <div class="d-grid gap-2">
-                <button class="btn btn-danger" name="saveButton" type="submit">Send</button>
-                <a href="/login" class="btn btn-secondary" type="button">Go back</a>
-              </div>
-            </div>
+          )}
+
+          <div className="flex flex-col space-y-3">
+            <button
+              type="submit"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg transition"
+            >
+              Send
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition"
+            >
+              Go Back
+            </button>
+          </div>
         </form>
-        
+      </div>
     </div>
-</div>
+  );
+};
+
+export default ResetPassword;

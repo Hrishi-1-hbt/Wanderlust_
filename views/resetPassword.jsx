@@ -1,68 +1,82 @@
-<% layout("/layouts/boilerplate") %>
-<br>
-<br>
-<style>
-    .form_body {
-        background-color: #f1f1f1;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 7px 15px rgba(113, 113, 113, 0.626);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .reset_form input[type="text"],
-    .reset_form input[type="password"] {
-        border-radius: 5px;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
-    }
+// views/ResetPassword.jsx
+import React, { useState } from "react";
 
-    /* Dark Mode Styles */
-    .dark-mode {
-        .form_body {
-            background-color: #2e2e2e;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
-        }
-        h1{
-            color: white !important;
-        }
+const ResetPassword = ({ token }) => {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-        .reset_form input[type="text"],
-        .reset_form input[type="password"] {
-            background-color: #2c2c2c;
-            color: #ffffff;
-            border: 1px solid #555555;
-        }
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 transition-colors duration-300 px-4">
+      <h1 className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8">
+        Reset Your Password
+      </h1>
 
-        .reset_form label {
-            color: #fff;
-        }
+      <div className="w-full max-w-md bg-white dark:bg-gray-800 p-8 rounded-xl shadow-xl">
+        <form
+          action={`/resetPassword/${token}?_method=PATCH`}
+          method="POST"
+          id="resetPasswordForm"
+          className="space-y-6"
+        >
+          {/* Password Field */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-gray-700 dark:text-gray-200 font-medium mb-2"
+            >
+              New Password:
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Enter New Password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 rounded-md bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+            />
+          </div>
 
-        .reset_form input[type="text"]::placeholder,
-        .reset_form input[type="password"]::placeholder {
-            color: #aaaaaa;
-        }
-    }
-</style>
+          {/* Confirm Password Field */}
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-gray-700 dark:text-gray-200 font-medium mb-2"
+            >
+              Confirm Password:
+            </label>
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full p-3 rounded-md bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500"
+            />
+          </div>
 
-<div class="row">
-    <h1 style="text-align: center;">Reset Your Password</h1>
-    <div class="col-11 col-md-8 col-lg-4 mx-auto form_body">
-       
-        <form action="/resetPassword/<%= token %>?_method=PATCH" method="POST" id="resetPasswordForm" class="reset_form">
-            <div class="mb-3">
-                <label for="password" class="form-label">New Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter New Password" required>
-            </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password:</label>
-                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm New Password" required>
-            </div>
-            <div class="d-grid gap-2">
-                <button class="btn btn-danger" type="submit">Reset Password</button>
-                <a href="/forgot-password" class="btn btn-secondary">cancel</a>
-            </div>
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+            <button
+              type="submit"
+              className="flex-1 bg-pink-600 hover:bg-pink-700 text-white py-3 rounded-md font-medium transition-colors"
+            >
+              Reset Password
+            </button>
+            <a
+              href="/forgot-password"
+              className="flex-1 text-center bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-md font-medium transition-colors"
+            >
+              Cancel
+            </a>
+          </div>
         </form>
+      </div>
     </div>
-</div>
+  );
+};
+
+export default ResetPassword;

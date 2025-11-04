@@ -1,65 +1,69 @@
-<% layout("/layouts/boilerplate") %>
-<br>
-<br>
-<style>
-    .form_body {
-        background-color: #f1f1f1;
-        border-radius: 8px;
-        padding: 30px;
-        box-shadow: 0 7px 15px rgba(113, 113, 113, 0.626);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .update_form input[type="password"] {
-        border-radius: 5px;
-        padding: 12px;
-        width: 100%;
-        margin-top: 10px;
-    }
+import React from "react";
 
-    /* Dark Mode Styles */
-    .dark-mode {
-        .form_body {
-            background-color: #2e2e2e;
-            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.5);
-        }
-        h1{
-            color: white !important;
-        }
+const UpdatePassword = () => {
+  return (
+    <div className="flex flex-col items-center mt-10">
+      <h1 className="text-3xl font-semibold text-center mb-6 dark:text-white">
+        Update Password
+      </h1>
+      <div className="w-11/12 md:w-8/12 lg:w-1/3 bg-gray-100 dark:bg-gray-800 rounded-lg p-8 shadow-lg transition-all">
+        <form
+          action="/user/updatePass"
+          method="POST"
+          className="space-y-5 update_form"
+        >
+          <div>
+            <label
+              htmlFor="currentPassword"
+              className="block text-gray-800 dark:text-gray-200 mb-2 font-medium"
+            >
+              Current Password:
+            </label>
+            <input
+              type="password"
+              id="currentPassword"
+              name="currentPass"
+              placeholder="Enter Current Password"
+              required
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 outline-none"
+            />
+          </div>
 
-        .update_form input[type="password"] {
-            background-color: #2c2c2c;
-            color: #ffffff;
-            border: 1px solid #555555;
-        }
+          <div>
+            <label
+              htmlFor="newPassword"
+              className="block text-gray-800 dark:text-gray-200 mb-2 font-medium"
+            >
+              New Password:
+            </label>
+            <input
+              type="password"
+              id="newPassword"
+              name="newPass"
+              placeholder="Enter New Password"
+              required
+              className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-red-500 outline-none"
+            />
+          </div>
 
-        .update_form label {
-            color: #fff;
-        }
-
-        .update_form input[type="password"]::placeholder {
-            color: #aaaaaa;
-        }
-    }
-</style>
-
-<div class="row">
-    <h1 style="text-align: center;">Update Password</h1>
-    <div class="col-11 col-md-8 col-lg-4 mx-auto form_body">
-        
-        <form action="/user/updatePass" method="POST" class="update_form">
-            <div class="mb-3">
-                <label for="currentPassword" class="form-label">Current Password:</label>
-                <input type="password" name="currentPass" placeholder="Enter Current Password" required>
-            </div>
-            <div class="mb-3">
-                <label for="newPassword" class="form-label">New Password:</label>
-                <input type="password" name="newPass" placeholder="Enter New Password" required>
-            </div>
-            <div class="d-grid gap-2">
-                <button class="btn btn-danger" type="submit">Update Password</button>
-                <a href="/profile" class="btn btn-secondary">Cancel</a>
-            </div>
+          <div className="flex flex-col gap-3">
+            <button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-md font-semibold transition"
+            >
+              Update Password
+            </button>
+            <a
+              href="/profile"
+              className="text-center bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded-md font-semibold transition"
+            >
+              Cancel
+            </a>
+          </div>
         </form>
+      </div>
     </div>
-</div>
+  );
+};
+
+export default UpdatePassword;

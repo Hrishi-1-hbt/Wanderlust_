@@ -1,188 +1,136 @@
-<% layout("/layouts/boilerplate") %>
+import React, { useState } from "react";
 
-<style>
+const Blogs = ({ blogs = [], currUser }) => {
+  const [likes, setLikes] = useState(
+    blogs.reduce((acc, blog) => {
+      acc[blog._id] = blog.likes || 0;
+      return acc;
+    }, {})
+  );
 
-    .blog-container {
-        text-align: center;
-    }
+  const handleLike = (id) => {
+    setLikes((prev) => ({
+      ...prev,
+      [id]: prev[id] + 1,
+    }));
+    // Optional: call backend to persist like
+    // fetch(`/blogs/${id}/like`, { method: "POST" });
+  };
 
-    .blog-container{
-        .add-blog, #blogPosts {
-            margin: 2rem 0;
-        }
-        
-        .add-blog form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            align-items: center;
-        }
-        
-        input, textarea {
-            width: 80%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 0.5rem;
-            font-size: 1rem;
-        }
-        
-        /* Blog post styling */
-        .blog-post {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 0.5rem;
-            padding: 1rem;
-            margin: 1rem 0;
-            text-align: left;
-        }
-        
-        .blog-post h3 {
-            color: #007bff;
-            margin: 0;
-        }
-        
-        .blog-post img {
-            max-width: 100%;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .blog-post .likes {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #ff4757;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .likes .like-count {
-            font-weight: normal;
-        }
-    }
-        
-    /* Blog Post Styling */
-    .blogs-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 2rem;
-    }
+  return (
+    <main className="flex flex-col items-center px-4 py-10 bg-gray-50 min-h-screen">
+      <h2 className="text-4xl font-bold mb-3 font-serif text-gray-800">Travel Stories</h2>
+      <p className="text-gray-600 mb-8 text-center">
+        Read through amazing travel stories or share your own adventure!
+      </p>
 
-    .blog-post {
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        padding: 20px;
-        width: 90%;
-        max-width: 900px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-    }
-
-    .blog-post:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-    }
-
-    .blog-post h2 {
-        font-size: 2rem;
-        color: #333;
-        text-align: center;
-        margin-bottom: 1rem;
-    }
-
-    .blog-post p {
-        font-size: 1.1rem;
-        color: #555;
-        line-height: 1.6;
-        margin-bottom: 1rem;
-    }
-
-    .blog-post p:nth-of-type(2), .blog-post p:nth-of-type(3) {
-        font-size: 0.95rem;
-        color: #777;
-    }
-
-    .blog-image {
-        width: 100%;
-        max-height: 350px;
-        object-fit: cover;
-        border-radius: 6px;
-        margin-top: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    /* Like Button Styling */
-    .like-btn {
-        background: none;
-        border: none;
-        color: #e63946;
-        cursor: pointer;
-        font-size: 1.4rem;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        transition: color 0.3s ease;
-    }
-
-    .like-btn:hover {
-        color: #c02733;
-    }
-
-    .like-btn span {
-        font-size: 1.2rem;
-    }
-</style>
-
-<!-- Blog Section -->
-<main class="blog-container">
-    <h2 class="mb-3 mt-5" style="font-family: rakkas;">Travel Stories</h2>
-    <p>Read through amazing travel stories or share your own adventure!</p>
-    
-    <!-- Blog Post Form -->
-    <section class="add-blog">
-        <h3 class="mb-5" style="font-family: rakkas;">Share Your Story</h3>
-        <form id="blogForm" action="/blogs" method="POST" enctype="multipart/form-data">
-            <input type="text" name="blog[title]" id="title" placeholder="Title" required>
-            <input type="text" name="blog[location]" id="location" placeholder="Location" required>
-            <textarea name="blog[content]" id="content" placeholder="Describe your experience..." rows="5" required></textarea>
-            <input type="file" name="blog[image]" id="image" accept="image/*">
-            <button type="submit" class="btn btn-outline-danger">Post Story</button>
+      {/* Add Blog Form */}
+      <section className="w-full max-w-2xl bg-white p-6 rounded-xl shadow-md mb-12">
+        <h3 className="text-2xl font-semibold mb-5 text-center font-serif text-blue-600">
+          Share Your Story
+        </h3>
+        <form
+          id="blogForm"
+          action="/blogs"
+          method="POST"
+          encType="multipart/form-data"
+          className="flex flex-col gap-4"
+        >
+          <input
+            type="text"
+            name="blog[title]"
+            placeholder="Title"
+            required
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="blog[location]"
+            placeholder="Location"
+            required
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          />
+          <textarea
+            name="blog[content]"
+            placeholder="Describe your experience..."
+            rows="5"
+            required
+            className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500"
+          ></textarea>
+          <input
+            type="file"
+            name="blog[image]"
+            accept="image/*"
+            className="text-sm text-gray-700"
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Post Story
+          </button>
         </form>
-        
-    </section>
+      </section>
 
-    <!-- Blog Posts -->
-    <div class="blogs-section">
-        <% blogs.forEach(blog => { %>
-            <div class="blog-post">
-                <h2><%= blog.title %></h2>
-                <p><%= blog.content %></p>
-                <p>Location: <%= blog.location %></p>
-                <p>Posted by: <%= blog.blogOwner ? blog.blogOwner.username : 'Unknown' %></p>
+      {/* Blog Posts Section */}
+      <div className="flex flex-col items-center gap-8 w-full">
+        {blogs.map((blog) => (
+          <div
+            key={blog._id}
+            className="bg-white w-full max-w-3xl p-6 rounded-xl shadow-lg hover:shadow-2xl transition"
+          >
+            <h2 className="text-2xl font-semibold text-center text-gray-800 mb-3">
+              {blog.title}
+            </h2>
+            <p className="text-gray-700 mb-3">{blog.content}</p>
+            <p className="text-sm text-gray-500 mb-1">
+              Location: {blog.location}
+            </p>
+            <p className="text-sm text-gray-500 mb-3">
+              Posted by: {blog.blogOwner?.username || "Unknown"}
+            </p>
 
-                   <!-- Conditional Delete Form for Blog Owner -->
-                <% if (currUser && blog.blogOwner && currUser._id.toString() === blog.blogOwner._id.toString()) { %>
-                    <form action="/blogs/<%= blog._id %>?_method=DELETE" method="POST" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-danger">Delete</button>
-                    </form>
-                <% } %>
+            {/* Blog Images */}
+            {blog.images &&
+              blog.images.map((img, i) => (
+                <img
+                  key={i}
+                  src={img.imgUrl}
+                  alt="Blog"
+                  className="w-full rounded-lg mb-4 object-cover max-h-80"
+                />
+              ))}
 
-                <!-- Display each image in the blog's images array -->
-                <% blog.images.forEach(image => { %>
-                    <img src="<%= image.imgUrl %>" alt="Blog Image" class="blog-image">
-                <% }) %>
-    
-                <!-- Like button with heart symbol -->
-                <button class="like-btn" onclick="likeBlog('<%= blog._id %>')">
-                    ❤️ <span id="likes-<%= blog._id %>"><%= blog.likes || 0 %></span>
-                </button>
+            {/* Like and Delete Buttons */}
+            <div className="flex justify-between items-center mt-3">
+              <button
+                onClick={() => handleLike(blog._id)}
+                className="flex items-center gap-2 text-red-500 hover:text-red-600 transition"
+              >
+                ❤️ <span>{likes[blog._id]}</span>
+              </button>
+
+              {currUser &&
+                blog.blogOwner &&
+                currUser._id === blog.blogOwner._id && (
+                  <form
+                    action={`/blogs/${blog._id}?_method=DELETE`}
+                    method="POST"
+                  >
+                    <button
+                      type="submit"
+                      className="text-sm bg-red-500 text-white px-4 py-1.5 rounded-lg hover:bg-red-600 transition"
+                    >
+                      Delete
+                    </button>
+                  </form>
+                )}
             </div>
-        <% }) %>
-    </div>
-    
-    
-</main>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+};
+
+export default Blogs;
